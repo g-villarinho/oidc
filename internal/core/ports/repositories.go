@@ -2,9 +2,15 @@ package ports
 
 import (
 	"context"
+	"errors"
 
 	"github.com/g-villarinho/oidc-server/internal/core/domain"
 	"github.com/google/uuid"
+)
+
+var (
+	ErrAlreadyExists = errors.New("already exists in the repository")
+	ErrNotFound      = errors.New("not found in the repository")
 )
 
 type ClientRepository interface {

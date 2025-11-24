@@ -51,15 +51,7 @@ func (u *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.
 		return nil, fmt.Errorf("get user by email: %w", err)
 	}
 
-	return &domain.User{
-		ID:            user.ID.Bytes,
-		Name:          user.Name,
-		Email:         user.Email,
-		PasswordHash:  user.PasswordHash,
-		EmailVerified: user.EmailVerified,
-		CreatedAt:     user.CreatedAt.Time,
-		UpdatedAt:     user.UpdatedAt.Time,
-	}, nil
+	return u.toDomain(user), nil
 }
 
 func (u *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
@@ -73,15 +65,7 @@ func (u *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.Use
 		return nil, fmt.Errorf("get user by id: %w", err)
 	}
 
-	return &domain.User{
-		ID:            user.ID.Bytes,
-		Name:          user.Name,
-		Email:         user.Email,
-		PasswordHash:  user.PasswordHash,
-		EmailVerified: user.EmailVerified,
-		CreatedAt:     user.CreatedAt.Time,
-		UpdatedAt:     user.UpdatedAt.Time,
-	}, nil
+	return u.toDomain(user), nil
 }
 
 func (u *UserRepository) Update(ctx context.Context, user *domain.User) error {
@@ -99,8 +83,24 @@ func (u *UserRepository) Update(ctx context.Context, user *domain.User) error {
 	})
 
 	if err != nil {
+		if isUniqueViolation(err) {
+			return ports.ErrAlreadyExists
+		}
+
 		return fmt.Errorf("update user: %w", err)
 	}
 
 	return nil
+}
+
+func (r *UserRepository) toDomain(user db.User) *domain.User {
+	return &domain.User{
+		ID:            user.ID.Bytes,
+		Email:         user.Email,
+		PasswordHash:  user.PasswordHash,
+		Name:          user.Name,
+		EmailVerified: user.EmailVerified,
+		CreatedAt:     user.CreatedAt.Time,
+		UpdatedAt:     user.UpdatedAt.Time,
+	}
 }
