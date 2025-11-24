@@ -9,6 +9,8 @@ import (
 
 var (
 	ErrUserAlreadyExists = errors.New("user already exists")
+	ErrUserNotFound      = errors.New("user not found")
+	ErrPasswordMismatch  = errors.New("password does not match")
 )
 
 type User struct {

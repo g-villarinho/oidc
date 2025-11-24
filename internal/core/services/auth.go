@@ -9,35 +9,42 @@ import (
 )
 
 type AuthService struct {
-	userRepository ports.UserRepository
-	hasher         ports.Hasher
+	userService    *UserService
+	tokenGenerator ports.TokenGenerator
 }
 
-func NewAuthService(userRepo ports.UserRepository, hasher ports.Hasher) *AuthService {
+func NewAuthService(userService *UserService, tokenGenerator ports.TokenGenerator) *AuthService {
 	return &AuthService{
-		userRepository: userRepo,
-		hasher:         hasher,
+		userService:    userService,
+		tokenGenerator: tokenGenerator,
 	}
 }
 
 func (s *AuthService) RegisterUser(ctx context.Context, name, email, password string) error {
-	passwordHash, err := s.hasher.Hash(ctx, password)
+	user, err := s.userService.CreateUser(ctx, name, email, password)
 	if err != nil {
-		return fmt.Errorf("hash password: %w", err)
+		return fmt.Errorf("register user: %w", err)
 	}
 
-	user, err := domain.NewUser(name, email, passwordHash)
-	if err != nil {
-		return fmt.Errorf("create new user: %w", err)
-	}
-
-	if err := s.userRepository.Create(ctx, user); err != nil {
-		if err == ports.ErrAlreadyExists {
-			return fmt.Errorf("persist user: %w", domain.ErrUserAlreadyExists)
-		}
-
-		return fmt.Errorf("persist user: %w", err)
-	}
+	fmt.Printf("User registered successfully: %+v\n", user)
 
 	return nil
+}
+
+func (s *AuthService) LoginUser(ctx context.Context, email, password string) (*domain.LoginResponse, error) {
+	user, err := s.userService.Authenticate(ctx, email, password)
+	if err != nil {
+		return nil, fmt.Errorf("login user: %w", err)
+	}
+
+	accessToken, err := s.tokenGenerator.GenerateAccessToken(ctx, user.ID, nil, domain.AccessTokenLoginDuration)
+	if err != nil {
+		return nil, fmt.Errorf("generate access token: %w", err)
+	}
+
+	return &domain.LoginResponse{
+		AccessToken: accessToken,
+		TokenType:   "Bearer",
+		ExpiresIn:   domain.AccessTokenLoginDuration,
+	}, nil
 }
