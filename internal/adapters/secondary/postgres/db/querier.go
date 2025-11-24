@@ -13,13 +13,19 @@ import (
 type Querier interface {
 	CreateAuthorizationCode(ctx context.Context, arg CreateAuthorizationCodeParams) (AuthorizationCode, error)
 	CreateClient(ctx context.Context, arg CreateClientParams) (OauthClient, error)
+	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteAuthorizationCode(ctx context.Context, code string) error
 	DeleteClient(ctx context.Context, id pgtype.UUID) error
 	DeleteExpiredAuthorizationCodes(ctx context.Context) error
 	GetAuthorizationCode(ctx context.Context, code string) (GetAuthorizationCodeRow, error)
+	GetByEmail(ctx context.Context, email string) (User, error)
+	GetByID(ctx context.Context, id pgtype.UUID) (User, error)
 	GetClientByClientID(ctx context.Context, clientID string) (OauthClient, error)
 	ListClients(ctx context.Context) ([]OauthClient, error)
 	UpdateClient(ctx context.Context, arg UpdateClientParams) (OauthClient, error)
+	UpdatePassword(ctx context.Context, arg UpdatePasswordParams) (User, error)
+	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
+	VerifyEmail(ctx context.Context, id pgtype.UUID) (User, error)
 }
 
 var _ Querier = (*Queries)(nil)

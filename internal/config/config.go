@@ -32,14 +32,12 @@ type Postgres struct {
 }
 
 type Redis struct {
-	Host        string        `mapstructure:"host"`
-	Port        int           `mapstructure:"port"`
-	DB          int           `mapstructure:"db"`
-	Password    string        `mapstructure:"password"`
-	TLS         bool          `mapstructure:"tls"`
-	MaxConn     int           `mapstructure:"maxconn"`
-	MaxIdle     int           `mapstructure:"maxidle"`
-	MaxLifeTime time.Duration `mapstructure:"maxlifetime"`
+	Host         string `mapstructure:"host"`
+	Port         int    `mapstructure:"port"`
+	DB           int    `mapstructure:"db"`
+	Password     string `mapstructure:"password"`
+	MinIdleConns int    `mapstructure:"minidleconns"`
+	PoolSize     int    `mapstructure:"poolsize"`
 }
 
 type Cors struct {

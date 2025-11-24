@@ -10,9 +10,11 @@ import (
 
 func NewRedisClient(config *config.Config) (*redis.Client, error) {
 	client := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%d", config.Redis.Host, config.Redis.Port),
-		Password: config.Redis.Password,
-		DB:       config.Redis.DB,
+		Addr:         fmt.Sprintf("%s:%d", config.Redis.Host, config.Redis.Port),
+		Password:     config.Redis.Password,
+		DB:           config.Redis.DB,
+		PoolSize:     config.Redis.PoolSize,
+		MinIdleConns: config.Redis.MinIdleConns,
 	})
 
 	ctx := context.Background()
