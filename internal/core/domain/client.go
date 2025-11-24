@@ -1,7 +1,9 @@
 package domain
 
+import "github.com/google/uuid"
+
 type Client struct {
-	ID            string
+	ID            uuid.UUID
 	ClientID      string
 	ClientSecret  string
 	ClientName    string
@@ -9,4 +11,22 @@ type Client struct {
 	GrantTypes    []string
 	ResponseTypes []string
 	Scope         string
+}
+
+func NewClient(clientID, clientSecret, clientName string, redirectURIs, grantTypes, responseTypes []string, scope string) (*Client, error) {
+	id, err := uuid.NewV7()
+	if err != nil {
+		return nil, err
+	}
+
+	return &Client{
+		ID:            id,
+		ClientID:      clientID,
+		ClientSecret:  clientSecret,
+		ClientName:    clientName,
+		RedirectURIs:  redirectURIs,
+		GrantTypes:    grantTypes,
+		ResponseTypes: responseTypes,
+		Scope:         scope,
+	}, nil
 }
