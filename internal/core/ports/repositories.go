@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	ErrAlreadyExists = errors.New("already exists in the repository")
-	ErrNotFound      = errors.New("not found in the repository")
+	ErrUniqueKeyViolation = errors.New("already exists in the repository")
+	ErrNotFound           = errors.New("not found in the repository")
 )
 
 type ClientRepository interface {
@@ -23,4 +23,11 @@ type UserRepository interface {
 	GetByEmail(ctx context.Context, email string) (*domain.User, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error)
 	Update(ctx context.Context, user *domain.User) error
+}
+
+type SessionRepository interface {
+	Create(ctx context.Context, session *domain.Session) error
+	GetByID(ctx context.Context, sessionID uuid.UUID) (*domain.Session, error)
+	GetByUserID(ctx context.Context, userID uuid.UUID) ([]*domain.Session, error)
+	Delete(ctx context.Context, sessionID uuid.UUID) error
 }

@@ -29,6 +29,7 @@ type OauthClient struct {
 	GrantTypes    []string         `json:"grant_types"`
 	ResponseTypes []string         `json:"response_types"`
 	Scope         string           `json:"scope"`
+	LogoUrl       string           `json:"logo_url"`
 	CreatedAt     pgtype.Timestamp `json:"created_at"`
 	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
 }

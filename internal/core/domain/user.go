@@ -11,6 +11,7 @@ var (
 	ErrUserAlreadyExists = errors.New("user already exists")
 	ErrUserNotFound      = errors.New("user not found")
 	ErrPasswordMismatch  = errors.New("password does not match")
+	ErrEmailNotVerified  = errors.New("email not verified")
 )
 
 type User struct {

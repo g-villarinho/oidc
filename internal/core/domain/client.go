@@ -1,6 +1,10 @@
 package domain
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Client struct {
 	ID            uuid.UUID
@@ -11,6 +15,9 @@ type Client struct {
 	GrantTypes    []string
 	ResponseTypes []string
 	Scope         string
+	LogoURL       string
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 func NewClient(clientID, clientSecret, clientName string, redirectURIs, grantTypes, responseTypes []string, scope string) (*Client, error) {

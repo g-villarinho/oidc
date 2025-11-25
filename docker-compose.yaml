@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: kwik-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-oidc}
+      POSTGRES_USER: ${POSTGRES_USER:-oidc_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-oidcpass}
+      TZ: ${POSTGRES_TZ:-UTC}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    command: ["postgres", "-c", "timezone=UTC", "-c", "log_timezone=UTC"]
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-kwik} -d ${POSTGRES_DB:-kwik}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:8-alpine
+    container_name: kwik-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command:
+      [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--save",
+        "60",
+        "1",
+        "--save",
+        "300",
+        "100",
+      ]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "PING"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local

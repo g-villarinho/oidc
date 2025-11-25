@@ -84,7 +84,7 @@ func (u *UserRepository) Update(ctx context.Context, user *domain.User) error {
 
 	if err != nil {
 		if isUniqueViolation(err) {
-			return ports.ErrAlreadyExists
+			return ports.ErrUniqueKeyViolation
 		}
 
 		return fmt.Errorf("update user: %w", err)

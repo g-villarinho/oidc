@@ -8,6 +8,7 @@ CREATE TABLE oauth_clients (
     grant_types TEXT[] NOT NULL,
     response_types TEXT[] NOT NULL,
     scope TEXT NOT NULL,
+    logo_url TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );

@@ -6,6 +6,7 @@ import (
 
 	"github.com/g-villarinho/oidc-server/internal/core/domain"
 	"github.com/g-villarinho/oidc-server/internal/core/ports"
+	"github.com/google/uuid"
 )
 
 type UserService struct {
@@ -32,6 +33,9 @@ func (s *UserService) CreateUser(ctx context.Context, name, email, password stri
 	}
 
 	if err := s.userRepository.Create(ctx, user); err != nil {
+		if err == ports.ErrUniqueKeyViolation {
+			return nil, domain.ErrUserAlreadyExists
+		}
 		return nil, fmt.Errorf("persist user: %w", err)
 	}
 
@@ -50,6 +54,23 @@ func (s *UserService) Authenticate(ctx context.Context, email, password string) 
 
 	if err := s.hasher.Compare(ctx, user.PasswordHash, password); err != nil {
 		return nil, domain.ErrPasswordMismatch
+	}
+
+	if !user.EmailVerified {
+		return nil, domain.ErrEmailNotVerified
+	}
+
+	return user, nil
+}
+
+func (s *UserService) GetUserByID(ctx context.Context, userID uuid.UUID) (*domain.User, error) {
+	user, err := s.userRepository.GetByID(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("get user by ID: %w", err)
+	}
+
+	if user == nil {
+		return nil, domain.ErrUserNotFound
 	}
 
 	return user, nil

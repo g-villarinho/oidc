@@ -15,6 +15,7 @@ type Config struct {
 	Cors      Cors      `mapstructure:"cors"`
 	Key       Key       `mapstructure:"key"`
 	RateLimit RateLimit `mapstructure:"ratelimit"`
+	Session   Session   `mapstructure:"session"`
 }
 
 type Postgres struct {
@@ -54,6 +55,19 @@ type RateLimit struct {
 type Key struct {
 	PrivateKey string `mapstructure:"privatekey"`
 	PublicKey  string `mapstructure:"publickey"`
+}
+
+type Session struct {
+	Secret        string        `mapstructure:"secret"`
+	Duration      time.Duration `mapstructure:"duration"`
+	CookieOptions CookieOptions `mapstructure:"cookieoptions"`
+}
+
+type CookieOptions struct {
+	Name     string `mapstructure:"name"`
+	Secure   bool   `mapstructure:"secure"`
+	HTTPOnly bool   `mapstructure:"httpOnly"`
+	SameSite string `mapstructure:"sameSite"`
 }
 
 func (e *Config) IsDevelopment() bool {

@@ -1,0 +1,15 @@
+# Configuration files with sensitive data
+config.yaml
+config.test.yaml
+config.*.yaml
+!config.yaml.example
+
+*.pem
+
+*.db
+
+/bin
+
+CLAUDE.md
+/.claude
+/.claude.md
