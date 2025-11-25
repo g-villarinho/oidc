@@ -38,6 +38,7 @@ func (r *ClientRepository) Create(ctx context.Context, client *domain.Client) er
 		GrantTypes:    client.GrantTypes,
 		ResponseTypes: client.ResponseTypes,
 		Scope:         client.Scope,
+		LogoUrl:       client.LogoURL,
 	})
 
 	return err
@@ -58,5 +59,6 @@ func (r *ClientRepository) GetByClientID(ctx context.Context, clientID string) (
 		GrantTypes:    client.GrantTypes,
 		ResponseTypes: client.ResponseTypes,
 		Scope:         client.Scope,
+		LogoURL:       client.LogoUrl,
 	}, nil
 }
