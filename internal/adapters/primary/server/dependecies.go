@@ -1,9 +1,11 @@
 package server
 
 import (
+	"github.com/g-villarinho/oidc-server/internal/adapters/primary/server/handlers"
 	"github.com/g-villarinho/oidc-server/internal/adapters/secondary/postgres"
 	"github.com/g-villarinho/oidc-server/internal/adapters/secondary/postgres/repositories"
 	"github.com/g-villarinho/oidc-server/internal/adapters/secondary/redis"
+	"github.com/g-villarinho/oidc-server/internal/core/services"
 	"github.com/g-villarinho/oidc-server/pkg/injector"
 	"go.uber.org/dig"
 )
@@ -14,6 +16,8 @@ func InitializeContainer() *dig.Container {
 	provideInfraDependencies(container)
 	provideRepositories(container)
 	provideCache(container)
+	provideServices(container)
+	provideHandlers(container)
 
 	return container
 }
@@ -29,4 +33,14 @@ func provideRepositories(container *dig.Container) {
 
 func provideCache(container *dig.Container) {
 	injector.Provide(container, redis.NewCache)
+}
+
+func provideServices(container *dig.Container) {
+	injector.Provide(container, services.NewAuthService)
+	injector.Provide(container, services.NewClientService)
+}
+
+func provideHandlers(container *dig.Container) {
+	injector.Provide(container, handlers.NewClientHandler)
+	injector.Provide(container, handlers.NewAuthHandler)
 }

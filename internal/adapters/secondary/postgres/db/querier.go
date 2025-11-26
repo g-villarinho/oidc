@@ -21,6 +21,7 @@ type Querier interface {
 	GetByEmail(ctx context.Context, email string) (User, error)
 	GetByID(ctx context.Context, id pgtype.UUID) (User, error)
 	GetClientByClientID(ctx context.Context, clientID string) (OauthClient, error)
+	GetClientByID(ctx context.Context, id pgtype.UUID) (OauthClient, error)
 	ListClients(ctx context.Context) ([]OauthClient, error)
 	UpdateClient(ctx context.Context, arg UpdateClientParams) (OauthClient, error)
 	UpdatePassword(ctx context.Context, arg UpdatePasswordParams) (User, error)

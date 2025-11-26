@@ -102,6 +102,30 @@ func (q *Queries) GetClientByClientID(ctx context.Context, clientID string) (Oau
 	return i, err
 }
 
+const getClientByID = `-- name: GetClientByID :one
+SELECT id, client_id, client_secret, client_name, redirect_uris, grant_types, response_types, scope, logo_url, created_at, updated_at FROM oauth_clients
+WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetClientByID(ctx context.Context, id pgtype.UUID) (OauthClient, error) {
+	row := q.db.QueryRow(ctx, getClientByID, id)
+	var i OauthClient
+	err := row.Scan(
+		&i.ID,
+		&i.ClientID,
+		&i.ClientSecret,
+		&i.ClientName,
+		&i.RedirectUris,
+		&i.GrantTypes,
+		&i.ResponseTypes,
+		&i.Scope,
+		&i.LogoUrl,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const listClients = `-- name: ListClients :many
 SELECT id, client_id, client_secret, client_name, redirect_uris, grant_types, response_types, scope, logo_url, created_at, updated_at FROM oauth_clients
 ORDER BY created_at DESC

@@ -15,7 +15,11 @@ var (
 
 type ClientRepository interface {
 	Create(ctx context.Context, client *domain.Client) error
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.Client, error)
 	GetByClientID(ctx context.Context, clientID string) (*domain.Client, error)
+	List(ctx context.Context) ([]*domain.Client, error)
+	Update(ctx context.Context, client *domain.Client) error
+	Delete(ctx context.Context, id uuid.UUID) error
 }
 
 type UserRepository interface {

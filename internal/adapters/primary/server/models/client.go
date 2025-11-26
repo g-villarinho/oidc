@@ -1,0 +1,38 @@
+package models
+
+type CreateClientRequest struct {
+	ClientID      string   `json:"client_id" binding:"required"`
+	ClientSecret  string   `json:"client_secret" binding:"required,min=8"`
+	ClientName    string   `json:"client_name" binding:"required"`
+	RedirectURIs  []string `json:"redirect_uris" binding:"required,min=1"`
+	GrantTypes    []string `json:"grant_types" binding:"required,min=1"`
+	ResponseTypes []string `json:"response_types" binding:"required,min=1"`
+	Scope         string   `json:"scope" binding:"required"`
+	LogoURL       string   `json:"logo_url"`
+}
+
+type UpdateClientRequest struct {
+	ClientName    string   `json:"client_name" binding:"required"`
+	RedirectURIs  []string `json:"redirect_uris" binding:"required,min=1"`
+	GrantTypes    []string `json:"grant_types" binding:"required,min=1"`
+	ResponseTypes []string `json:"response_types" binding:"required,min=1"`
+	Scope         string   `json:"scope" binding:"required"`
+}
+
+type ClientResponse struct {
+	ID            string   `json:"id"`
+	ClientID      string   `json:"client_id"`
+	ClientName    string   `json:"client_name"`
+	RedirectURIs  []string `json:"redirect_uris"`
+	GrantTypes    []string `json:"grant_types"`
+	ResponseTypes []string `json:"response_types"`
+	Scope         string   `json:"scope"`
+	LogoURL       string   `json:"logo_url"`
+	CreatedAt     string   `json:"created_at"`
+	UpdatedAt     string   `json:"updated_at"`
+}
+
+type ClientListResponse struct {
+	Clients []ClientResponse `json:"clients"`
+	Total   int              `json:"total"`
+}

@@ -2,6 +2,10 @@
 SELECT * FROM oauth_clients
 WHERE client_id = $1 LIMIT 1;
 
+-- name: GetClientByID :one
+SELECT * FROM oauth_clients
+WHERE id = $1 LIMIT 1;
+
 -- name: CreateClient :one
 INSERT INTO oauth_clients (
     id,
