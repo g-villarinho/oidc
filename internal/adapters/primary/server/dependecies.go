@@ -2,9 +2,11 @@ package server
 
 import (
 	"github.com/g-villarinho/oidc-server/internal/adapters/primary/server/handlers"
+	"github.com/g-villarinho/oidc-server/internal/adapters/secondary/argon2"
 	"github.com/g-villarinho/oidc-server/internal/adapters/secondary/postgres"
-	"github.com/g-villarinho/oidc-server/internal/adapters/secondary/postgres/repositories"
+	postgresRepo "github.com/g-villarinho/oidc-server/internal/adapters/secondary/postgres/repositories"
 	"github.com/g-villarinho/oidc-server/internal/adapters/secondary/redis"
+	redisRepo "github.com/g-villarinho/oidc-server/internal/adapters/secondary/redis/repositories"
 	"github.com/g-villarinho/oidc-server/internal/core/services"
 	"github.com/g-villarinho/oidc-server/pkg/injector"
 	"go.uber.org/dig"
@@ -18,6 +20,7 @@ func InitializeContainer() *dig.Container {
 	provideCache(container)
 	provideServices(container)
 	provideHandlers(container)
+	porviderCrypto(container)
 
 	return container
 }
@@ -28,7 +31,9 @@ func provideInfraDependencies(container *dig.Container) {
 }
 
 func provideRepositories(container *dig.Container) {
-	injector.Provide(container, repositories.NewClientRepository)
+	injector.Provide(container, postgresRepo.NewClientRepository)
+	injector.Provide(container, postgresRepo.NewUserRepository)
+	injector.Provide(container, redisRepo.NewSessionRepository)
 }
 
 func provideCache(container *dig.Container) {
@@ -43,4 +48,9 @@ func provideServices(container *dig.Container) {
 func provideHandlers(container *dig.Container) {
 	injector.Provide(container, handlers.NewClientHandler)
 	injector.Provide(container, handlers.NewAuthHandler)
+	injector.Provide(container, handlers.NewCookieHandler)
+}
+
+func porviderCrypto(container *dig.Container) {
+	injector.Provide(container, argon2.NewHasher)
 }

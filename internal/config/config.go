@@ -16,6 +16,13 @@ type Config struct {
 	Key       Key       `mapstructure:"key"`
 	RateLimit RateLimit `mapstructure:"ratelimit"`
 	Session   Session   `mapstructure:"session"`
+	Server    Server    `mapstructure:"server"`
+}
+
+type Server struct {
+	Port            int           `mapstructure:"port"`
+	Host            string        `mapstructure:"host"`
+	ShutdownTimeout time.Duration `mapstructure:"shutdowntimeout"`
 }
 
 type Postgres struct {

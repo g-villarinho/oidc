@@ -5,20 +5,17 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func SetupRoutes(e *echo.Echo, clientHandler *handlers.ClientHandler, authHandler *handlers.AuthHandler) {
-	// API v1 group
-	api := e.Group("/api/v1")
+func registerClientRoutes(e *echo.Group, clientHandler *handlers.ClientHandler) {
+	clientsV1Group := e.Group("/v1/clients")
+	clientsV1Group.POST("", clientHandler.CreateClient)
+	clientsV1Group.GET("", clientHandler.ListClients)
+	clientsV1Group.GET("/:id", clientHandler.GetClientByID)
+	clientsV1Group.PUT("/:id", clientHandler.UpdateClient)
+	clientsV1Group.DELETE("/:id", clientHandler.DeleteClient)
+}
 
-	// Client routes
-	clients := api.Group("/clients")
-	clients.POST("", clientHandler.CreateClient)
-	clients.GET("", clientHandler.ListClients)
-	clients.GET("/:id", clientHandler.GetClientByID)
-	clients.PUT("/:id", clientHandler.UpdateClient)
-	clients.DELETE("/:id", clientHandler.DeleteClient)
-
-	// Auth routes
-	auth := api.Group("/auth")
-	auth.POST("/login", authHandler.Login)
-	auth.POST("/register", authHandler.RegisterUser)
+func registerAuthRoutes(e *echo.Group, authHandler *handlers.AuthHandler) {
+	authV1Group := e.Group("/v1/auth")
+	authV1Group.POST("/login", authHandler.Login)
+	authV1Group.POST("/register", authHandler.RegisterUser)
 }
