@@ -3,7 +3,7 @@ package models
 type LoginPayload struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required,min=8"`
-	Continue string `json:"continue" binding`
+	Continue string `json:"continue" binding:"required,url"`
 }
 
 type LoginResponse struct {
