@@ -3,7 +3,7 @@ version: "3.9"
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: kwik-postgres
+    container_name: oidc-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-oidc}
@@ -19,7 +19,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "pg_isready -U ${POSTGRES_USER:-kwik} -d ${POSTGRES_DB:-kwik}",
+          "pg_isready -U ${POSTGRES_USER:-oidc} -d ${POSTGRES_DB:-oidc}",
         ]
       interval: 10s
       timeout: 5s
@@ -28,7 +28,7 @@ services:
 
   redis:
     image: redis:8-alpine
-    container_name: kwik-redis
+    container_name: oidc-redis
     restart: unless-stopped
     ports:
       - "6379:6379"
