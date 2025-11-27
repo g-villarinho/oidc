@@ -17,21 +17,21 @@ INSERT INTO authorization_codes (
     client_id,
     user_id,
     redirect_uri,
-    scope,
+    scopes,
     code_challenge,
     code_challenge_method,
     expires_at
 ) VALUES (
     $1, $2, $3, $4, $5, $6, $7, $8
-) RETURNING code, client_id, user_id, redirect_uri, scope, code_challenge, code_challenge_method, expires_at, created_at
+) RETURNING code, client_id, user_id, redirect_uri, scopes, code_challenge, code_challenge_method, expires_at, created_at
 `
 
 type CreateAuthorizationCodeParams struct {
 	Code                string           `json:"code"`
-	ClientID            pgtype.UUID      `json:"client_id"`
+	ClientID            string           `json:"client_id"`
 	UserID              pgtype.UUID      `json:"user_id"`
 	RedirectUri         string           `json:"redirect_uri"`
-	Scope               string           `json:"scope"`
+	Scopes              []string         `json:"scopes"`
 	CodeChallenge       pgtype.Text      `json:"code_challenge"`
 	CodeChallengeMethod pgtype.Text      `json:"code_challenge_method"`
 	ExpiresAt           pgtype.Timestamp `json:"expires_at"`
@@ -43,7 +43,7 @@ func (q *Queries) CreateAuthorizationCode(ctx context.Context, arg CreateAuthori
 		arg.ClientID,
 		arg.UserID,
 		arg.RedirectUri,
-		arg.Scope,
+		arg.Scopes,
 		arg.CodeChallenge,
 		arg.CodeChallengeMethod,
 		arg.ExpiresAt,
@@ -54,7 +54,7 @@ func (q *Queries) CreateAuthorizationCode(ctx context.Context, arg CreateAuthori
 		&i.ClientID,
 		&i.UserID,
 		&i.RedirectUri,
-		&i.Scope,
+		&i.Scopes,
 		&i.CodeChallenge,
 		&i.CodeChallengeMethod,
 		&i.ExpiresAt,
@@ -85,7 +85,7 @@ func (q *Queries) DeleteExpiredAuthorizationCodes(ctx context.Context) error {
 
 const getAuthorizationCode = `-- name: GetAuthorizationCode :one
 SELECT 
-    ac.code, ac.client_id, ac.user_id, ac.redirect_uri, ac.scope, ac.code_challenge, ac.code_challenge_method, ac.expires_at, ac.created_at,
+    ac.code, ac.client_id, ac.user_id, ac.redirect_uri, ac.scopes, ac.code_challenge, ac.code_challenge_method, ac.expires_at, ac.created_at,
     c.client_id as client_client_id,
     c.redirect_uris as client_redirect_uris,
     u.email as user_email
@@ -99,10 +99,10 @@ LIMIT 1
 
 type GetAuthorizationCodeRow struct {
 	Code                string           `json:"code"`
-	ClientID            pgtype.UUID      `json:"client_id"`
+	ClientID            string           `json:"client_id"`
 	UserID              pgtype.UUID      `json:"user_id"`
 	RedirectUri         string           `json:"redirect_uri"`
-	Scope               string           `json:"scope"`
+	Scopes              []string         `json:"scopes"`
 	CodeChallenge       pgtype.Text      `json:"code_challenge"`
 	CodeChallengeMethod pgtype.Text      `json:"code_challenge_method"`
 	ExpiresAt           pgtype.Timestamp `json:"expires_at"`
@@ -120,7 +120,7 @@ func (q *Queries) GetAuthorizationCode(ctx context.Context, code string) (GetAut
 		&i.ClientID,
 		&i.UserID,
 		&i.RedirectUri,
-		&i.Scope,
+		&i.Scopes,
 		&i.CodeChallenge,
 		&i.CodeChallengeMethod,
 		&i.ExpiresAt,

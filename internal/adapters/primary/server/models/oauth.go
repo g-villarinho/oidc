@@ -1,6 +1,9 @@
 package models
 
-import "github.com/g-villarinho/oidc-server/pkg/security"
+import (
+	"github.com/g-villarinho/oidc-server/internal/core/domain"
+	"github.com/g-villarinho/oidc-server/pkg/security"
+)
 
 type AuthorizePayload struct {
 	ClientID            string   `query:"client_id" binding:"required"`
@@ -23,5 +26,18 @@ func ToContinueURLParams(payload AuthorizePayload) security.ContinueURLParams {
 		Nonce:               payload.Nonce,
 		CodeChallenge:       payload.CodeChallenge,
 		CodeChallengeMethod: payload.CodeChallengeMethod,
+	}
+}
+
+func (p *AuthorizePayload) ToAuthorizeParams() domain.AuthorizeParams {
+	return domain.AuthorizeParams{
+		ClientID:            p.ClientID,
+		RedirectURI:         p.RedirectURI,
+		ResponseType:        p.ResponseType,
+		Scopes:              p.Scopes,
+		State:               p.State,
+		Nonce:               p.Nonce,
+		CodeChallenge:       p.CodeChallenge,
+		CodeChallengeMethod: p.CodeChallengeMethod,
 	}
 }

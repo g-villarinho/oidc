@@ -4,7 +4,7 @@ INSERT INTO authorization_codes (
     client_id,
     user_id,
     redirect_uri,
-    scope,
+    scopes,
     code_challenge,
     code_challenge_method,
     expires_at

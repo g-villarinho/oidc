@@ -27,10 +27,10 @@ CREATE TABLE users (
 -- Tabela de authorization codes
 CREATE TABLE authorization_codes (
     code VARCHAR(255) PRIMARY KEY,
-    client_id UUID NOT NULL REFERENCES oauth_clients(id),
+    client_id varchar(255) NOT NULL REFERENCES oauth_clients(client_id),
     user_id UUID NOT NULL REFERENCES users(id),
     redirect_uri TEXT NOT NULL,
-    scope TEXT NOT NULL,
+    scopes TEXT[] NOT NULL,
     code_challenge VARCHAR(255),
     code_challenge_method VARCHAR(10),
     expires_at TIMESTAMP NOT NULL,

@@ -6,6 +6,7 @@ import (
 
 	"github.com/g-villarinho/oidc-server/internal/core/domain"
 	"github.com/g-villarinho/oidc-server/internal/core/ports"
+	"github.com/google/uuid"
 )
 
 type AuthorizationService struct {
@@ -41,4 +42,8 @@ func (s *AuthorizationService) ValidateAuthorizationClient(ctx context.Context, 
 	}
 
 	return client, nil
+}
+
+func (s *AuthorizationService) Authorize(ctx context.Context, userID uuid.UUID, client *domain.Client, params domain.AuthorizeParams) (string, error) {
+	return "", nil
 }

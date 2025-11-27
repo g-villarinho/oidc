@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"net/url"
 
 	"github.com/g-villarinho/oidc-server/internal/adapters/primary/server/context"
 	"github.com/g-villarinho/oidc-server/internal/adapters/primary/server/models"
@@ -48,6 +49,12 @@ func (h *AuthorizationHandler) Authorize(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "invalid params authorize")
 	}
 
+	client, err := h.service.ValidateAuthorizationClient(c.Request().Context(), payload.ToAuthorizeParams())
+	if err != nil {
+		logger.Error("failed to validate authorization client", "error", err)
+		return c.String(http.StatusBadRequest, "invalid client authorization")
+	}
+
 	session := h.context.GetSession(c)
 	if session == nil {
 		logger.Info("no active session, redirecting to login")
@@ -55,12 +62,27 @@ func (h *AuthorizationHandler) Authorize(c echo.Context) error {
 		continueURLParams := models.ToContinueURLParams(payload)
 
 		continueURL := security.GenerateContinueURL(fmt.Sprintf("%s/authorize", h.url.AppBaseURL), continueURLParams)
-		loginURL := fmt.Sprintf("%s/login?continue=%s", h.url.AppBaseURL, continueURL)
+		loginParams := url.Values{}
+		loginParams.Set("continue", continueURL)
+
+		loginURL := fmt.Sprintf("%s/login?%s", h.url.AppBaseURL, loginParams.Encode())
 
 		return c.Redirect(http.StatusFound, loginURL)
 	}
 
-	return c.String(200, "Authorization successful")
+	code, err := h.service.Authorize(c.Request().Context(), session.UserID, client, payload.ToAuthorizeParams())
+	if err != nil {
+		logger.Error("authorize client", "error", err)
+		return c.String(http.StatusInternalServerError, "failed to authorize client")
+	}
+
+	redirectParams := url.Values{}
+	redirectParams.Set("code", code)
+	redirectParams.Set("state", payload.State)
+
+	redirectURI := fmt.Sprintf("%s?%s", payload.RedirectURI, redirectParams.Encode())
+
+	return c.Redirect(http.StatusFound, redirectURI)
 }
 
 func (h *AuthorizationHandler) Token(c echo.Context) error {

@@ -35,3 +35,9 @@ type SessionRepository interface {
 	GetByUserID(ctx context.Context, userID uuid.UUID) ([]*domain.Session, error)
 	Delete(ctx context.Context, sessionID uuid.UUID) error
 }
+
+type AuthorizationCodeRepository interface {
+	Create(ctx context.Context, code *domain.AuthorizationCode) error
+	GetByCode(ctx context.Context, code string) (*domain.AuthorizationCode, error)
+	Delete(ctx context.Context, code string) error
+}

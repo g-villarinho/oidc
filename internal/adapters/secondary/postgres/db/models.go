@@ -10,10 +10,10 @@ import (
 
 type AuthorizationCode struct {
 	Code                string           `json:"code"`
-	ClientID            pgtype.UUID      `json:"client_id"`
+	ClientID            string           `json:"client_id"`
 	UserID              pgtype.UUID      `json:"user_id"`
 	RedirectUri         string           `json:"redirect_uri"`
-	Scope               string           `json:"scope"`
+	Scopes              []string         `json:"scopes"`
 	CodeChallenge       pgtype.Text      `json:"code_challenge"`
 	CodeChallengeMethod pgtype.Text      `json:"code_challenge_method"`
 	ExpiresAt           pgtype.Timestamp `json:"expires_at"`
