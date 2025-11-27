@@ -56,6 +56,7 @@ func provideHandlers(container *dig.Container) {
 	injector.Provide(container, handlers.NewClientHandler)
 	injector.Provide(container, handlers.NewAuthHandler)
 	injector.Provide(container, handlers.NewCookieHandler)
+	injector.Provide(container, handlers.NewHealthHandler)
 }
 
 func provideCrypto(container *dig.Container) {

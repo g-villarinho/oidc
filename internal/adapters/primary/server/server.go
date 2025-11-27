@@ -24,6 +24,7 @@ type ServerParams struct {
 	Config        *config.Config
 	AuthHandler   *handlers.AuthHandler
 	ClientHandler *handlers.ClientHandler
+	HealthHandler *handlers.HealthHandler
 }
 
 type Server struct {
@@ -47,6 +48,8 @@ func NewServer(params ServerParams) *Server {
 	group := e.Group("/api")
 	registerAuthRoutes(group, params.AuthHandler)
 	registerClientRoutes(group, params.ClientHandler)
+	registerHealthRoutes(e, params.HealthHandler)
+
 	return &Server{
 		echo:            e,
 		port:            port,
