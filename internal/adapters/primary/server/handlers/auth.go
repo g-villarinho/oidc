@@ -9,6 +9,7 @@ import (
 	"github.com/g-villarinho/oidc-server/internal/adapters/primary/server/response"
 	"github.com/g-villarinho/oidc-server/internal/core/domain"
 	"github.com/g-villarinho/oidc-server/internal/core/services"
+	"github.com/g-villarinho/oidc-server/pkg/security"
 	"github.com/labstack/echo/v4"
 )
 
@@ -40,6 +41,12 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		return response.ValidationError(c, err)
 	}
 
+	redirectURL, valid := security.ValidateRedirectURL(payload.Continue, nil)
+	if !valid {
+		logger.Warn("invalid redirect URL provided", "continue", payload.Continue)
+		redirectURL = "/"
+	}
+
 	session, user, err := h.authService.Login(c.Request().Context(), payload.Email, payload.Password)
 	if err != nil {
 		if errors.Is(err, domain.ErrPasswordMismatch) || errors.Is(err, domain.ErrUserNotFound) {
@@ -59,6 +66,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	h.cookieHandler.Set(c, session.ID.String(), session.ExpiresAt)
 
 	response := models.LoginResponse{
+		Continue: redirectURL,
 		User: models.UserResponse{
 			ID:    user.ID.String(),
 			Email: user.Email,
