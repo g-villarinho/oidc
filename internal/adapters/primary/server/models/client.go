@@ -1,13 +1,12 @@
 package models
 
 type CreateClientRequest struct {
-	ClientID      string   `json:"client_id" binding:"required"`
 	ClientSecret  string   `json:"client_secret" binding:"required,min=8"`
 	ClientName    string   `json:"client_name" binding:"required"`
 	RedirectURIs  []string `json:"redirect_uris" binding:"required,min=1"`
 	GrantTypes    []string `json:"grant_types" binding:"required,min=1"`
 	ResponseTypes []string `json:"response_types" binding:"required,min=1"`
-	Scope         string   `json:"scope" binding:"required"`
+	Scopes        []string `json:"scopes" binding:"required,min=1"`
 	LogoURL       string   `json:"logo_url"`
 }
 
@@ -16,7 +15,7 @@ type UpdateClientRequest struct {
 	RedirectURIs  []string `json:"redirect_uris" binding:"required,min=1"`
 	GrantTypes    []string `json:"grant_types" binding:"required,min=1"`
 	ResponseTypes []string `json:"response_types" binding:"required,min=1"`
-	Scope         string   `json:"scope" binding:"required"`
+	Scopes        []string `json:"scopes" binding:"required,min=1"`
 }
 
 type ClientResponse struct {
@@ -26,7 +25,7 @@ type ClientResponse struct {
 	RedirectURIs  []string `json:"redirect_uris"`
 	GrantTypes    []string `json:"grant_types"`
 	ResponseTypes []string `json:"response_types"`
-	Scope         string   `json:"scope"`
+	Scopes        []string `json:"scopes"`
 	LogoURL       string   `json:"logo_url"`
 	CreatedAt     string   `json:"created_at"`
 	UpdatedAt     string   `json:"updated_at"`

@@ -1,6 +1,7 @@
 package server
 
 import (
+	appcontext "github.com/g-villarinho/oidc-server/internal/adapters/primary/server/context"
 	"github.com/g-villarinho/oidc-server/internal/adapters/primary/server/handlers"
 	"github.com/g-villarinho/oidc-server/internal/adapters/secondary/argon2"
 	"github.com/g-villarinho/oidc-server/internal/adapters/secondary/postgres"
@@ -57,6 +58,7 @@ func provideHandlers(container *dig.Container) {
 	injector.Provide(container, handlers.NewAuthHandler)
 	injector.Provide(container, handlers.NewCookieHandler)
 	injector.Provide(container, handlers.NewHealthHandler)
+	injector.Provide(container, appcontext.NewEchoContext)
 }
 
 func provideCrypto(container *dig.Container) {

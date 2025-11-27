@@ -42,13 +42,12 @@ func (h *ClientHandler) CreateClient(c echo.Context) error {
 
 	client, err := h.clientService.CreateClient(
 		c.Request().Context(),
-		payload.ClientID,
 		payload.ClientSecret,
 		payload.ClientName,
 		payload.RedirectURIs,
 		payload.GrantTypes,
 		payload.ResponseTypes,
-		payload.Scope,
+		payload.Scopes,
 		payload.LogoURL,
 	)
 	if err != nil {
@@ -68,7 +67,7 @@ func (h *ClientHandler) CreateClient(c echo.Context) error {
 		RedirectURIs:  client.RedirectURIs,
 		GrantTypes:    client.GrantTypes,
 		ResponseTypes: client.ResponseTypes,
-		Scope:         client.Scope,
+		Scopes:        client.Scopes,
 		LogoURL:       client.LogoURL,
 		CreatedAt:     client.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		UpdatedAt:     client.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
@@ -105,7 +104,7 @@ func (h *ClientHandler) GetClientByID(c echo.Context) error {
 		RedirectURIs:  client.RedirectURIs,
 		GrantTypes:    client.GrantTypes,
 		ResponseTypes: client.ResponseTypes,
-		Scope:         client.Scope,
+		Scopes:        client.Scopes,
 		LogoURL:       client.LogoURL,
 		CreatedAt:     client.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		UpdatedAt:     client.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
@@ -132,7 +131,7 @@ func (h *ClientHandler) ListClients(c echo.Context) error {
 			RedirectURIs:  client.RedirectURIs,
 			GrantTypes:    client.GrantTypes,
 			ResponseTypes: client.ResponseTypes,
-			Scope:         client.Scope,
+			Scopes:        client.Scopes,
 			LogoURL:       client.LogoURL,
 			CreatedAt:     client.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 			UpdatedAt:     client.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
@@ -175,7 +174,7 @@ func (h *ClientHandler) UpdateClient(c echo.Context) error {
 		payload.RedirectURIs,
 		payload.GrantTypes,
 		payload.ResponseTypes,
-		payload.Scope,
+		payload.Scopes,
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -194,7 +193,7 @@ func (h *ClientHandler) UpdateClient(c echo.Context) error {
 		RedirectURIs:  client.RedirectURIs,
 		GrantTypes:    client.GrantTypes,
 		ResponseTypes: client.ResponseTypes,
-		Scope:         client.Scope,
+		Scopes:        client.Scopes,
 		LogoURL:       client.LogoURL,
 		CreatedAt:     client.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		UpdatedAt:     client.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),

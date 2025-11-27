@@ -2,6 +2,7 @@ package domain
 
 import (
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,13 +16,13 @@ type Client struct {
 	RedirectURIs  []string
 	GrantTypes    []string
 	ResponseTypes []string
-	Scope         string
+	Scopes        []string
 	LogoURL       string
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 }
 
-func NewClient(clientID, clientSecret, clientName string, redirectURIs, grantTypes, responseTypes []string, scope string, logoURL string) (*Client, error) {
+func NewClient(clientID, clientSecret, clientName string, redirectURIs, grantTypes, responseTypes, scopes []string, logoURL string) (*Client, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
 		return nil, err
@@ -35,7 +36,7 @@ func NewClient(clientID, clientSecret, clientName string, redirectURIs, grantTyp
 		RedirectURIs:  redirectURIs,
 		GrantTypes:    grantTypes,
 		ResponseTypes: responseTypes,
-		Scope:         scope,
+		Scopes:        scopes,
 		LogoURL:       logoURL,
 	}, nil
 }
@@ -50,4 +51,32 @@ func (c *Client) SupportsGrantType(grantType string) bool {
 
 func (c *Client) SupportsResponseType(responseType string) bool {
 	return slices.Contains(c.ResponseTypes, responseType)
+}
+
+func (c *Client) SupportsScopes(requestedScopes []string) bool {
+	for _, requested := range requestedScopes {
+		requested = strings.TrimSpace(requested)
+		if requested == "" {
+			continue
+		}
+
+		if !slices.Contains(c.Scopes, requested) {
+			return false
+		}
+	}
+	return true
+}
+
+func (c *Client) HasAnyScope(requestedScopes []string) bool {
+	for _, requested := range requestedScopes {
+		requested = strings.TrimSpace(requested)
+		if requested == "" {
+			continue
+		}
+
+		if slices.Contains(c.Scopes, requested) {
+			return true
+		}
+	}
+	return false
 }

@@ -28,7 +28,7 @@ type OauthClient struct {
 	RedirectUris  []string         `json:"redirect_uris"`
 	GrantTypes    []string         `json:"grant_types"`
 	ResponseTypes []string         `json:"response_types"`
-	Scope         string           `json:"scope"`
+	Scopes        []string         `json:"scopes"`
 	LogoUrl       string           `json:"logo_url"`
 	CreatedAt     pgtype.Timestamp `json:"created_at"`
 	UpdatedAt     pgtype.Timestamp `json:"updated_at"`

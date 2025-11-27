@@ -17,6 +17,7 @@ type Config struct {
 	RateLimit RateLimit `mapstructure:"ratelimit"`
 	Session   Session   `mapstructure:"session"`
 	Server    Server    `mapstructure:"server"`
+	URL       URL       `mapstructure:"url"`
 }
 
 type Server struct {
@@ -75,6 +76,11 @@ type CookieOptions struct {
 	Secure   bool   `mapstructure:"secure"`
 	HTTPOnly bool   `mapstructure:"httpOnly"`
 	SameSite string `mapstructure:"sameSite"`
+}
+
+type URL struct {
+	APIBaseURL string `mapstructure:"apibaseurl"`
+	AppBaseURL string `mapstructure:"appbaseurl"`
 }
 
 func (e *Config) IsDevelopment() bool {

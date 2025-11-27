@@ -15,7 +15,7 @@ INSERT INTO oauth_clients (
     redirect_uris,
     grant_types,
     response_types,
-    scope,
+    scopes,
     logo_url
 ) VALUES (
     $1, $2, $3, $4, $5, $6, $7, $8, $9
@@ -32,7 +32,7 @@ SET
     redirect_uris = $3,
     grant_types = $4,
     response_types = $5,
-    scope = $6,
+    scopes = $6,
     updated_at = NOW()
 WHERE id = $1
 RETURNING *;

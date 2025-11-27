@@ -38,7 +38,7 @@ func (r *ClientRepository) Create(ctx context.Context, client *domain.Client) er
 		RedirectUris:  client.RedirectURIs,
 		GrantTypes:    client.GrantTypes,
 		ResponseTypes: client.ResponseTypes,
-		Scope:         client.Scope,
+		Scopes:        client.Scopes,
 		LogoUrl:       client.LogoURL,
 	})
 
@@ -59,7 +59,7 @@ func (r *ClientRepository) GetByClientID(ctx context.Context, clientID string) (
 		RedirectURIs:  client.RedirectUris,
 		GrantTypes:    client.GrantTypes,
 		ResponseTypes: client.ResponseTypes,
-		Scope:         client.Scope,
+		Scopes:        client.Scopes,
 		LogoURL:       client.LogoUrl,
 	}, nil
 }
@@ -83,7 +83,7 @@ func (r *ClientRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.C
 		RedirectURIs:  client.RedirectUris,
 		GrantTypes:    client.GrantTypes,
 		ResponseTypes: client.ResponseTypes,
-		Scope:         client.Scope,
+		Scopes:        client.Scopes,
 		LogoURL:       client.LogoUrl,
 		CreatedAt:     client.CreatedAt.Time,
 		UpdatedAt:     client.UpdatedAt.Time,
@@ -106,7 +106,7 @@ func (r *ClientRepository) List(ctx context.Context) ([]*domain.Client, error) {
 			RedirectURIs:  client.RedirectUris,
 			GrantTypes:    client.GrantTypes,
 			ResponseTypes: client.ResponseTypes,
-			Scope:         client.Scope,
+			Scopes:        client.Scopes,
 			LogoURL:       client.LogoUrl,
 			CreatedAt:     client.CreatedAt.Time,
 			UpdatedAt:     client.UpdatedAt.Time,
@@ -128,7 +128,7 @@ func (r *ClientRepository) Update(ctx context.Context, client *domain.Client) er
 		RedirectUris:  client.RedirectURIs,
 		GrantTypes:    client.GrantTypes,
 		ResponseTypes: client.ResponseTypes,
-		Scope:         client.Scope,
+		Scopes:        client.Scopes,
 	})
 
 	if err != nil {

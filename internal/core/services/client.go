@@ -19,8 +19,10 @@ func NewClientService(clientRepository ports.ClientRepository) *ClientService {
 	}
 }
 
-func (s *ClientService) CreateClient(ctx context.Context, clientID, clientSecret, clientName string, redirectURIs, grantTypes, responseTypes []string, scope, logoURL string) (*domain.Client, error) {
-	client, err := domain.NewClient(clientID, clientSecret, clientName, redirectURIs, grantTypes, responseTypes, scope, logoURL)
+func (s *ClientService) CreateClient(ctx context.Context, clientSecret, clientName string, redirectURIs, grantTypes, responseTypes, scopes []string, logoURL string) (*domain.Client, error) {
+	clientID := uuid.New().String()
+
+	client, err := domain.NewClient(clientID, clientSecret, clientName, redirectURIs, grantTypes, responseTypes, scopes, logoURL)
 	if err != nil {
 		return nil, fmt.Errorf("create client domain: %w", err)
 	}
@@ -50,7 +52,7 @@ func (s *ClientService) ListClients(ctx context.Context) ([]*domain.Client, erro
 	return clients, nil
 }
 
-func (s *ClientService) UpdateClient(ctx context.Context, id uuid.UUID, clientName string, redirectURIs, grantTypes, responseTypes []string, scope string) (*domain.Client, error) {
+func (s *ClientService) UpdateClient(ctx context.Context, id uuid.UUID, clientName string, redirectURIs, grantTypes, responseTypes, scopes []string) (*domain.Client, error) {
 	client, err := s.clientRepository.GetByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("get client for update: %w", err)
@@ -60,7 +62,7 @@ func (s *ClientService) UpdateClient(ctx context.Context, id uuid.UUID, clientNa
 	client.RedirectURIs = redirectURIs
 	client.GrantTypes = grantTypes
 	client.ResponseTypes = responseTypes
-	client.Scope = scope
+	client.Scopes = scopes
 
 	if err := s.clientRepository.Update(ctx, client); err != nil {
 		return nil, fmt.Errorf("update client: %w", err)

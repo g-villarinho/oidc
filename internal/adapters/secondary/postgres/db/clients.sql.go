@@ -20,11 +20,11 @@ INSERT INTO oauth_clients (
     redirect_uris,
     grant_types,
     response_types,
-    scope,
+    scopes,
     logo_url
 ) VALUES (
     $1, $2, $3, $4, $5, $6, $7, $8, $9
-) RETURNING id, client_id, client_secret, client_name, redirect_uris, grant_types, response_types, scope, logo_url, created_at, updated_at
+) RETURNING id, client_id, client_secret, client_name, redirect_uris, grant_types, response_types, scopes, logo_url, created_at, updated_at
 `
 
 type CreateClientParams struct {
@@ -35,7 +35,7 @@ type CreateClientParams struct {
 	RedirectUris  []string    `json:"redirect_uris"`
 	GrantTypes    []string    `json:"grant_types"`
 	ResponseTypes []string    `json:"response_types"`
-	Scope         string      `json:"scope"`
+	Scopes        []string    `json:"scopes"`
 	LogoUrl       string      `json:"logo_url"`
 }
 
@@ -48,7 +48,7 @@ func (q *Queries) CreateClient(ctx context.Context, arg CreateClientParams) (Oau
 		arg.RedirectUris,
 		arg.GrantTypes,
 		arg.ResponseTypes,
-		arg.Scope,
+		arg.Scopes,
 		arg.LogoUrl,
 	)
 	var i OauthClient
@@ -60,7 +60,7 @@ func (q *Queries) CreateClient(ctx context.Context, arg CreateClientParams) (Oau
 		&i.RedirectUris,
 		&i.GrantTypes,
 		&i.ResponseTypes,
-		&i.Scope,
+		&i.Scopes,
 		&i.LogoUrl,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -79,7 +79,7 @@ func (q *Queries) DeleteClient(ctx context.Context, id pgtype.UUID) error {
 }
 
 const getClientByClientID = `-- name: GetClientByClientID :one
-SELECT id, client_id, client_secret, client_name, redirect_uris, grant_types, response_types, scope, logo_url, created_at, updated_at FROM oauth_clients
+SELECT id, client_id, client_secret, client_name, redirect_uris, grant_types, response_types, scopes, logo_url, created_at, updated_at FROM oauth_clients
 WHERE client_id = $1 LIMIT 1
 `
 
@@ -94,7 +94,7 @@ func (q *Queries) GetClientByClientID(ctx context.Context, clientID string) (Oau
 		&i.RedirectUris,
 		&i.GrantTypes,
 		&i.ResponseTypes,
-		&i.Scope,
+		&i.Scopes,
 		&i.LogoUrl,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -103,7 +103,7 @@ func (q *Queries) GetClientByClientID(ctx context.Context, clientID string) (Oau
 }
 
 const getClientByID = `-- name: GetClientByID :one
-SELECT id, client_id, client_secret, client_name, redirect_uris, grant_types, response_types, scope, logo_url, created_at, updated_at FROM oauth_clients
+SELECT id, client_id, client_secret, client_name, redirect_uris, grant_types, response_types, scopes, logo_url, created_at, updated_at FROM oauth_clients
 WHERE id = $1 LIMIT 1
 `
 
@@ -118,7 +118,7 @@ func (q *Queries) GetClientByID(ctx context.Context, id pgtype.UUID) (OauthClien
 		&i.RedirectUris,
 		&i.GrantTypes,
 		&i.ResponseTypes,
-		&i.Scope,
+		&i.Scopes,
 		&i.LogoUrl,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -127,7 +127,7 @@ func (q *Queries) GetClientByID(ctx context.Context, id pgtype.UUID) (OauthClien
 }
 
 const listClients = `-- name: ListClients :many
-SELECT id, client_id, client_secret, client_name, redirect_uris, grant_types, response_types, scope, logo_url, created_at, updated_at FROM oauth_clients
+SELECT id, client_id, client_secret, client_name, redirect_uris, grant_types, response_types, scopes, logo_url, created_at, updated_at FROM oauth_clients
 ORDER BY created_at DESC
 `
 
@@ -148,7 +148,7 @@ func (q *Queries) ListClients(ctx context.Context) ([]OauthClient, error) {
 			&i.RedirectUris,
 			&i.GrantTypes,
 			&i.ResponseTypes,
-			&i.Scope,
+			&i.Scopes,
 			&i.LogoUrl,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -170,10 +170,10 @@ SET
     redirect_uris = $3,
     grant_types = $4,
     response_types = $5,
-    scope = $6,
+    scopes = $6,
     updated_at = NOW()
 WHERE id = $1
-RETURNING id, client_id, client_secret, client_name, redirect_uris, grant_types, response_types, scope, logo_url, created_at, updated_at
+RETURNING id, client_id, client_secret, client_name, redirect_uris, grant_types, response_types, scopes, logo_url, created_at, updated_at
 `
 
 type UpdateClientParams struct {
@@ -182,7 +182,7 @@ type UpdateClientParams struct {
 	RedirectUris  []string    `json:"redirect_uris"`
 	GrantTypes    []string    `json:"grant_types"`
 	ResponseTypes []string    `json:"response_types"`
-	Scope         string      `json:"scope"`
+	Scopes        []string    `json:"scopes"`
 }
 
 func (q *Queries) UpdateClient(ctx context.Context, arg UpdateClientParams) (OauthClient, error) {
@@ -192,7 +192,7 @@ func (q *Queries) UpdateClient(ctx context.Context, arg UpdateClientParams) (Oau
 		arg.RedirectUris,
 		arg.GrantTypes,
 		arg.ResponseTypes,
-		arg.Scope,
+		arg.Scopes,
 	)
 	var i OauthClient
 	err := row.Scan(
@@ -203,7 +203,7 @@ func (q *Queries) UpdateClient(ctx context.Context, arg UpdateClientParams) (Oau
 		&i.RedirectUris,
 		&i.GrantTypes,
 		&i.ResponseTypes,
-		&i.Scope,
+		&i.Scopes,
 		&i.LogoUrl,
 		&i.CreatedAt,
 		&i.UpdatedAt,
