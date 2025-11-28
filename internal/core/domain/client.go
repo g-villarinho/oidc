@@ -41,6 +41,15 @@ func NewClient(clientID, clientSecret, clientName string, redirectURIs, grantTyp
 	}, nil
 }
 
+type CreateClientParams struct {
+	ClientName    string
+	RedirectURIs  []string
+	GrantTypes    []string
+	ResponseTypes []string
+	Scopes        []string
+	LogoURL       string
+}
+
 func (c *Client) HasRedirectURI(uri string) bool {
 	return slices.Contains(c.RedirectURIs, uri)
 }

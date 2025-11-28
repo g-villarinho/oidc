@@ -11,18 +11,25 @@ import (
 
 type ClientService struct {
 	clientRepository ports.ClientRepository
+	hasher           ports.Hasher
 }
 
-func NewClientService(clientRepository ports.ClientRepository) *ClientService {
+func NewClientService(clientRepository ports.ClientRepository, hasher ports.Hasher) *ClientService {
 	return &ClientService{
 		clientRepository: clientRepository,
+		hasher:           hasher,
 	}
 }
 
-func (s *ClientService) CreateClient(ctx context.Context, clientSecret, clientName string, redirectURIs, grantTypes, responseTypes, scopes []string, logoURL string) (*domain.Client, error) {
+func (s *ClientService) CreateClient(ctx context.Context, params domain.CreateClientParams) (*domain.Client, error) {
 	clientID := uuid.New().String()
 
-	client, err := domain.NewClient(clientID, clientSecret, clientName, redirectURIs, grantTypes, responseTypes, scopes, logoURL)
+	clientSecret, err := s.hasher.Hash(ctx, uuid.New().String())
+	if err != nil {
+		return nil, fmt.Errorf("hash client secret: %w", err)
+	}
+
+	client, err := domain.NewClient(clientID, clientSecret, params.ClientName, params.RedirectURIs, params.GrantTypes, params.ResponseTypes, params.Scopes, params.LogoURL)
 	if err != nil {
 		return nil, fmt.Errorf("create client domain: %w", err)
 	}

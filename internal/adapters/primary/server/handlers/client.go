@@ -29,7 +29,7 @@ func NewClientHandler(clientService *services.ClientService, logger *slog.Logger
 func (h *ClientHandler) CreateClient(c echo.Context) error {
 	logger := h.logger.With("handler", "CreateClient")
 
-	var payload models.CreateClientRequest
+	var payload models.CreateClientPayload
 	if err := c.Bind(&payload); err != nil {
 		logger.Error("failed to bind create client payload", "error", err)
 		return response.InvalidBind(c)
@@ -40,16 +40,7 @@ func (h *ClientHandler) CreateClient(c echo.Context) error {
 		return response.ValidationError(c, err)
 	}
 
-	client, err := h.clientService.CreateClient(
-		c.Request().Context(),
-		payload.ClientSecret,
-		payload.ClientName,
-		payload.RedirectURIs,
-		payload.GrantTypes,
-		payload.ResponseTypes,
-		payload.Scopes,
-		payload.LogoURL,
-	)
+	client, err := h.clientService.CreateClient(c.Request().Context(), models.ToCreateClientParams(payload))
 	if err != nil {
 		if errors.Is(err, ports.ErrUniqueKeyViolation) {
 			logger.Warn("attempt to create client with duplicate client_id", "error", err)
@@ -156,7 +147,7 @@ func (h *ClientHandler) UpdateClient(c echo.Context) error {
 		return response.BadRequest(c, "INVALID_CLIENT_ID", "Invalid client ID format")
 	}
 
-	var payload models.UpdateClientRequest
+	var payload models.UpdateClientPayload
 	if err := c.Bind(&payload); err != nil {
 		logger.Error("failed to bind update client payload", "error", err)
 		return response.InvalidBind(c)

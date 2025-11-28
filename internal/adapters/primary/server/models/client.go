@@ -1,7 +1,8 @@
 package models
 
-type CreateClientRequest struct {
-	ClientSecret  string   `json:"client_secret" binding:"required,min=8"`
+import "github.com/g-villarinho/oidc-server/internal/core/domain"
+
+type CreateClientPayload struct {
 	ClientName    string   `json:"client_name" binding:"required"`
 	RedirectURIs  []string `json:"redirect_uris" binding:"required,min=1"`
 	GrantTypes    []string `json:"grant_types" binding:"required,min=1"`
@@ -10,7 +11,7 @@ type CreateClientRequest struct {
 	LogoURL       string   `json:"logo_url"`
 }
 
-type UpdateClientRequest struct {
+type UpdateClientPayload struct {
 	ClientName    string   `json:"client_name" binding:"required"`
 	RedirectURIs  []string `json:"redirect_uris" binding:"required,min=1"`
 	GrantTypes    []string `json:"grant_types" binding:"required,min=1"`
@@ -34,4 +35,15 @@ type ClientResponse struct {
 type ClientListResponse struct {
 	Clients []ClientResponse `json:"clients"`
 	Total   int              `json:"total"`
+}
+
+func ToCreateClientParams(req CreateClientPayload) domain.CreateClientParams {
+	return domain.CreateClientParams{
+		ClientName:    req.ClientName,
+		RedirectURIs:  req.RedirectURIs,
+		GrantTypes:    req.GrantTypes,
+		ResponseTypes: req.ResponseTypes,
+		Scopes:        req.Scopes,
+		LogoURL:       req.LogoURL,
+	}
 }
