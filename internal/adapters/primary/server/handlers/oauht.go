@@ -14,20 +14,20 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type AuthorizationHandler struct {
+type OAuthHandler struct {
 	service *services.AuthorizationService
 	context *context.EchoContext
 	logger  *slog.Logger
 	url     config.URL
 }
 
-func NewAuthorizationHandler(
+func NewOAuthHandler(
 	service *services.AuthorizationService,
 	context *context.EchoContext,
 	logger *slog.Logger,
 	config *config.Config,
-) *AuthorizationHandler {
-	return &AuthorizationHandler{
+) *OAuthHandler {
+	return &OAuthHandler{
 		service: service,
 		context: context,
 		logger:  logger.With("handler", "authorization"),
@@ -35,7 +35,7 @@ func NewAuthorizationHandler(
 	}
 }
 
-func (h *AuthorizationHandler) Authorize(c echo.Context) error {
+func (h *OAuthHandler) Authorize(c echo.Context) error {
 	logger := h.logger.With("method", "Authorize")
 
 	var payload models.AuthorizePayload
@@ -85,6 +85,6 @@ func (h *AuthorizationHandler) Authorize(c echo.Context) error {
 	return c.Redirect(http.StatusFound, redirectURI)
 }
 
-func (h *AuthorizationHandler) Token(c echo.Context) error {
+func (h *OAuthHandler) Token(c echo.Context) error {
 	return c.String(200, "Token issued successfully")
 }

@@ -10,12 +10,14 @@ import (
 )
 
 type AuthorizationService struct {
-	clientRepository ports.ClientRepository
+	clientRepository            ports.ClientRepository
+	authorizationCodeRepository ports.AuthorizationCodeRepository
 }
 
-func NewAuthorizationService(clientRepository ports.ClientRepository) *AuthorizationService {
+func NewAuthorizationService(clientRepository ports.ClientRepository, authorizationCodeRepository ports.AuthorizationCodeRepository) *AuthorizationService {
 	return &AuthorizationService{
-		clientRepository: clientRepository,
+		clientRepository:            clientRepository,
+		authorizationCodeRepository: authorizationCodeRepository,
 	}
 }
 
@@ -45,5 +47,22 @@ func (s *AuthorizationService) ValidateAuthorizationClient(ctx context.Context, 
 }
 
 func (s *AuthorizationService) Authorize(ctx context.Context, userID uuid.UUID, client *domain.Client, params domain.AuthorizeParams) (string, error) {
-	return "", nil
+	authorizationCode, err := domain.NewAuthorizationCode(
+		client.ClientID,
+		userID,
+		params.RedirectURI,
+		params.Scopes,
+		params.CodeChallenge,
+		params.CodeChallengeMethod,
+	)
+
+	if err != nil {
+		return "", fmt.Errorf("create authorization code: %w", err)
+	}
+
+	if err := s.authorizationCodeRepository.Create(ctx, authorizationCode); err != nil {
+		return "", fmt.Errorf("save authorization code: %w", err)
+	}
+
+	return authorizationCode.Code, nil
 }

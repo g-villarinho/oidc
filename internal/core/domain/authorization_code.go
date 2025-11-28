@@ -10,6 +10,10 @@ import (
 	"github.com/google/uuid"
 )
 
+const (
+	AuthorizationCodeExpiry = 10 * time.Minute
+)
+
 type AuthorizationCode struct {
 	Code                string
 	ClientID            string
@@ -22,7 +26,7 @@ type AuthorizationCode struct {
 	CreatedAt           time.Time
 }
 
-func NewAuthorizationCode(clientID string, userID uuid.UUID, redirectURI string, scopes []string, codeChallenge, codeChallengeMethod string, expiresAt time.Time) (*AuthorizationCode, error) {
+func NewAuthorizationCode(clientID string, userID uuid.UUID, redirectURI string, scopes []string, codeChallenge, codeChallengeMethod string) (*AuthorizationCode, error) {
 	code, err := generateCode()
 	if err != nil {
 		return nil, err
@@ -36,7 +40,7 @@ func NewAuthorizationCode(clientID string, userID uuid.UUID, redirectURI string,
 		Scopes:              scopes,
 		CodeChallenge:       codeChallenge,
 		CodeChallengeMethod: codeChallengeMethod,
-		ExpiresAt:           expiresAt,
+		ExpiresAt:           time.Now().Add(AuthorizationCodeExpiry),
 	}, nil
 }
 

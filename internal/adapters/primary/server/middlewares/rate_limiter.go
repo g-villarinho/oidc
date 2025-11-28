@@ -7,7 +7,7 @@ import (
 	"golang.org/x/time/rate"
 )
 
-func RateLimiter(config *config.Config) echo.MiddlewareFunc {
-	rate := rate.Limit(config.RateLimit.MaxRequests)
+func RateLimiter(config *config.RateLimit) echo.MiddlewareFunc {
+	rate := rate.Limit(config.MaxRequests)
 	return middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate))
 }

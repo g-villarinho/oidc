@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/g-villarinho/oidc-server/internal/adapters/primary/server/handlers"
+	"github.com/g-villarinho/oidc-server/internal/adapters/primary/server/middlewares"
 	"github.com/labstack/echo/v4"
 )
 
@@ -23,4 +24,10 @@ func registerAuthRoutes(e *echo.Group, authHandler *handlers.AuthHandler) {
 func registerHealthRoutes(e *echo.Echo, healthHandler *handlers.HealthHandler) {
 	e.GET("/health", healthHandler.Liveness)
 	e.GET("/health/ready", healthHandler.Readiness)
+}
+
+func registerOAuthRoutes(e *echo.Group, oauthHandler *handlers.OAuthHandler, authMiddleware *middlewares.AuthMiddleware) {
+	oauthV1Group := e.Group("/v1/oauth")
+	oauthV1Group.GET("/authorize", oauthHandler.Authorize, authMiddleware.OptionalAuthentication)
+	oauthV1Group.POST("/token", oauthHandler.Token)
 }

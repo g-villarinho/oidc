@@ -3,6 +3,7 @@ package server
 import (
 	appcontext "github.com/g-villarinho/oidc-server/internal/adapters/primary/server/context"
 	"github.com/g-villarinho/oidc-server/internal/adapters/primary/server/handlers"
+	"github.com/g-villarinho/oidc-server/internal/adapters/primary/server/middlewares"
 	"github.com/g-villarinho/oidc-server/internal/adapters/secondary/argon2"
 	"github.com/g-villarinho/oidc-server/internal/adapters/secondary/postgres"
 	postgresRepo "github.com/g-villarinho/oidc-server/internal/adapters/secondary/postgres/repositories"
@@ -25,6 +26,7 @@ func InitializeContainer() *dig.Container {
 	provideHandlers(container)
 	provideCrypto(container)
 	provideServer(container)
+	provideMiddlewares(container)
 
 	return container
 }
@@ -34,12 +36,15 @@ func provideInfraDependencies(container *dig.Container) {
 	injector.Provide(container, postgres.NewPoolConnection)
 	injector.Provide(container, logger.NewLogger)
 	injector.Provide(container, config.NewConfig)
+	injector.Provide(container, appcontext.NewEchoContext)
 }
 
 func provideRepositories(container *dig.Container) {
 	injector.Provide(container, postgresRepo.NewClientRepository)
 	injector.Provide(container, postgresRepo.NewUserRepository)
 	injector.Provide(container, redisRepo.NewSessionRepository)
+	injector.Provide(container, postgresRepo.NewAuthorizationCodeRepository)
+
 }
 
 func provideCache(container *dig.Container) {
@@ -51,6 +56,7 @@ func provideServices(container *dig.Container) {
 	injector.Provide(container, services.NewClientService)
 	injector.Provide(container, services.NewUserService)
 	injector.Provide(container, services.NewCookieService)
+	injector.Provide(container, services.NewAuthorizationService)
 }
 
 func provideHandlers(container *dig.Container) {
@@ -58,7 +64,7 @@ func provideHandlers(container *dig.Container) {
 	injector.Provide(container, handlers.NewAuthHandler)
 	injector.Provide(container, handlers.NewCookieHandler)
 	injector.Provide(container, handlers.NewHealthHandler)
-	injector.Provide(container, appcontext.NewEchoContext)
+	injector.Provide(container, handlers.NewOAuthHandler)
 }
 
 func provideCrypto(container *dig.Container) {
@@ -67,4 +73,8 @@ func provideCrypto(container *dig.Container) {
 
 func provideServer(container *dig.Container) {
 	injector.Provide(container, NewServer)
+}
+
+func provideMiddlewares(container *dig.Container) {
+	injector.Provide(container, middlewares.NewAuthMiddleware)
 }

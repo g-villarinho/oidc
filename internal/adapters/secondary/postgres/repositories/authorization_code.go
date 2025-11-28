@@ -57,9 +57,24 @@ func (r *AuthorizationCodeRepository) Create(ctx context.Context, code *domain.A
 }
 
 func (a *AuthorizationCodeRepository) GetByCode(ctx context.Context, code string) (*domain.AuthorizationCode, error) {
-	panic("unimplemented")
+	ac, err := a.queries.GetAuthorizationCode(ctx, code)
+	if err != nil {
+		return nil, err
+	}
+
+	return &domain.AuthorizationCode{
+		Code:                ac.Code,
+		ClientID:            ac.ClientID,
+		UserID:              ac.UserID.Bytes,
+		RedirectURI:         ac.RedirectUri,
+		Scopes:              ac.Scopes,
+		CodeChallenge:       ac.CodeChallenge.String,
+		CodeChallengeMethod: ac.CodeChallengeMethod.String,
+		ExpiresAt:           ac.ExpiresAt.Time,
+		CreatedAt:           ac.CreatedAt.Time,
+	}, nil
 }
 
 func (a *AuthorizationCodeRepository) Delete(ctx context.Context, code string) error {
-	panic("unimplemented")
+	return a.queries.DeleteAuthorizationCode(ctx, code)
 }

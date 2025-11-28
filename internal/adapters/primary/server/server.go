@@ -21,10 +21,12 @@ import (
 type ServerParams struct {
 	dig.In
 
-	Config        *config.Config
-	AuthHandler   *handlers.AuthHandler
-	ClientHandler *handlers.ClientHandler
-	HealthHandler *handlers.HealthHandler
+	Config         *config.Config
+	AuthHandler    *handlers.AuthHandler
+	ClientHandler  *handlers.ClientHandler
+	HealthHandler  *handlers.HealthHandler
+	OAuthHandler   *handlers.OAuthHandler
+	AuthMiddleware *middlewares.AuthMiddleware
 }
 
 type Server struct {
@@ -43,12 +45,13 @@ func NewServer(params ServerParams) *Server {
 	e.Use(echoMiddleware.Recover())
 	e.Use(echoMiddleware.BodyLimit("10M"))
 	e.Use(middlewares.Cors(params.Config))
-	e.Use(middlewares.RateLimiter(params.Config))
+	e.Use(middlewares.RateLimiter(&params.Config.RateLimit))
 
 	group := e.Group("/api")
 	registerAuthRoutes(group, params.AuthHandler)
 	registerClientRoutes(group, params.ClientHandler)
 	registerHealthRoutes(e, params.HealthHandler)
+	registerOAuthRoutes(group, params.OAuthHandler, params.AuthMiddleware)
 
 	return &Server{
 		echo:            e,
