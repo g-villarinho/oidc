@@ -19,7 +19,7 @@ type AuthorizationServiceImpl struct {
 	authorizationCodeRepository ports.AuthorizationCodeRepository
 }
 
-func NewAuthorizationService(clientRepository ports.ClientRepository, authorizationCodeRepository ports.AuthorizationCodeRepository) *AuthorizationServiceImpl {
+func NewAuthorizationService(clientRepository ports.ClientRepository, authorizationCodeRepository ports.AuthorizationCodeRepository) AuthorizationService {
 	return &AuthorizationServiceImpl{
 		clientRepository:            clientRepository,
 		authorizationCodeRepository: authorizationCodeRepository,
