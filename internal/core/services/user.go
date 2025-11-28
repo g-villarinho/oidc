@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/g-villarinho/oidc-server/internal/core/domain"
@@ -22,6 +23,15 @@ func NewUserService(userRepo ports.UserRepository, hasher ports.Hasher) *UserSer
 }
 
 func (s *UserService) CreateUser(ctx context.Context, name, email, password string) (*domain.User, error) {
+	existingUser, err := s.userRepository.GetByEmail(ctx, email)
+	if err != nil && !errors.Is(err, ports.ErrNotFound) {
+		return nil, fmt.Errorf("check existing user: %w", err)
+	}
+
+	if existingUser != nil {
+		return nil, domain.ErrUserAlreadyExists
+	}
+
 	passwordHash, err := s.hasher.Hash(ctx, password)
 	if err != nil {
 		return nil, fmt.Errorf("hash password: %w", err)
@@ -36,6 +46,7 @@ func (s *UserService) CreateUser(ctx context.Context, name, email, password stri
 		if err == ports.ErrUniqueKeyViolation {
 			return nil, domain.ErrUserAlreadyExists
 		}
+
 		return nil, fmt.Errorf("persist user: %w", err)
 	}
 

@@ -1,9 +1,9 @@
 package models
 
 type LoginPayload struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=8"`
-	Continue string `json:"continue" binding:"required,url"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=8"`
+	Continue string `json:"continue" validate:"required,url"`
 }
 
 type LoginResponse struct {
@@ -12,7 +12,7 @@ type LoginResponse struct {
 }
 
 type RegisterPayload struct {
-	Email    string `json:"email" binding:"required,email"`
-	Name     string `json:"name" binding:"required"`
-	Password string `json:"password" binding:"required,min=8,strong_password"`
+	Email    string `json:"email" validate:"required,email"`
+	Name     string `json:"name" validate:"required"`
+	Password string `json:"password" validate:"required,min=8,strong_password"`
 }

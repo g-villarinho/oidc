@@ -6,14 +6,14 @@ import (
 )
 
 type AuthorizePayload struct {
-	ClientID            string   `query:"client_id" binding:"required"`
-	RedirectURI         string   `query:"redirect_uri" binding:"required,url"`
-	ResponseType        string   `query:"response_type" binding:"required,oneof=code token id_token"`
-	Scopes              []string `query:"scopes" binding:"dive,required"`
+	ClientID            string   `query:"client_id" validate:"required"`
+	RedirectURI         string   `query:"redirect_uri" validate:"required,url"`
+	ResponseType        string   `query:"response_type" validate:"required,oneof=code token id_token"`
+	Scopes              []string `query:"scopes" validate:"dive,required"`
 	State               string   `query:"state"`
 	Nonce               string   `query:"nonce"`
 	CodeChallenge       string   `query:"code_challenge"`
-	CodeChallengeMethod string   `query:"code_challenge_method" binding:"omitempty,oneof=plain S256"`
+	CodeChallengeMethod string   `query:"code_challenge_method" validate:"omitempty,oneof=plain S256"`
 }
 
 func ToContinueURLParams(payload AuthorizePayload) security.ContinueURLParams {

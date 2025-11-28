@@ -1,0 +1,174 @@
+{
+	"info": {
+		"_postman_id": "af94c173-a586-4d02-ac5d-5e5f9e72fbe4",
+		"name": "oidc",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39851182"
+	},
+	"item": [
+		{
+			"name": "client",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"client_name\": \"Chat GPT\",\n  \"redirect_uris\": [\n    \"https://auth.openai.com/api/accounts/callback/google\"\n  ],\n  \"grant_types\": [\n    \"authorization_code\",\n    \"refresh_token\"\n  ],\n  \"response_types\": [\n    \"code\"\n  ],\n  \"scopes\": [\n    \"openid\",\n    \"profile\",\n    \"email\"\n  ],\n  \"logo_url\": \"https://lh3.googleusercontent.com/2-W0dpMryc6SZuGeBA28wqyV_17n_wWHIJpv1TzTzAH2GYcivDgSkSBcE7q-WifTxg\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/v1/clients",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"clients"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/v1/clients",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"clients"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get by id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/v1/clients/019ac7f7-3479-75fb-a8c6-eca6775feda3",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"clients",
+								"019ac7f7-3479-75fb-a8c6-eca6775feda3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "udpate",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"client_name\": \"Chat GPT DEV)\",\n  \"redirect_uris\": [\n    \"https://auth.openai.com/api/accounts/callback/google\"\n  ],\n  \"grant_types\": [\n    \"authorization_code\",\n    \"refresh_token\"\n  ],\n  \"response_types\": [\n    \"code\"\n  ],\n  \"scopes\": [\n    \"openid\",\n    \"profile\",\n    \"email\"\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/v1/clients/019ac7e9-82bd-7a93-bc00-a81867bea59e",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"clients",
+								"019ac7e9-82bd-7a93-bc00-a81867bea59e"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/v1/clients/019ac7f7-3479-75fb-a8c6-eca6775feda3",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"clients",
+								"019ac7f7-3479-75fb-a8c6-eca6775feda3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "URL",
+			"value": ""
+		}
+	]
+}

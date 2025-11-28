@@ -48,6 +48,9 @@ func (r *ClientRepository) Create(ctx context.Context, client *domain.Client) er
 func (r *ClientRepository) GetByClientID(ctx context.Context, clientID string) (*domain.Client, error) {
 	client, err := r.queries.GetClientByClientID(ctx, clientID)
 	if err != nil {
+		if isNotFound(err) {
+			return nil, ports.ErrNotFound
+		}
 		return nil, fmt.Errorf("get client by clientID: %w", err)
 	}
 
@@ -72,6 +75,9 @@ func (r *ClientRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.C
 
 	client, err := r.queries.GetClientByID(ctx, pgUUID)
 	if err != nil {
+		if isNotFound(err) {
+			return nil, ports.ErrNotFound
+		}
 		return nil, fmt.Errorf("get client by ID: %w", err)
 	}
 

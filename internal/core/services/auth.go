@@ -27,14 +27,12 @@ func NewAuthService(userService *UserService, userRepository ports.UserRepositor
 }
 
 func (s *AuthService) RegisterUser(ctx context.Context, name, email, password string) error {
-	user, err := s.userService.CreateUser(ctx, name, email, password)
+	_, err := s.userService.CreateUser(ctx, name, email, password)
 	if err != nil {
 		return fmt.Errorf("register user: %w", err)
 	}
 
 	// TODO: Send welcome email to user confirming registration
-
-	fmt.Printf("User registered successfully: %+v\n", user)
 
 	return nil
 }

@@ -10,7 +10,6 @@ import (
 	"github.com/g-villarinho/oidc-server/internal/core/ports"
 	"github.com/g-villarinho/oidc-server/internal/core/services"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 )
 
@@ -79,7 +78,7 @@ func (h *ClientHandler) GetClientByID(c echo.Context) error {
 
 	client, err := h.clientService.GetClientByID(c.Request().Context(), id)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
+		if errors.Is(err, ports.ErrNotFound) {
 			logger.Warn("client not found", "id", id)
 			return response.NotFound(c, "CLIENT_NOT_FOUND", "Client not found")
 		}
@@ -168,7 +167,7 @@ func (h *ClientHandler) UpdateClient(c echo.Context) error {
 		payload.Scopes,
 	)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
+		if errors.Is(err, ports.ErrNotFound) {
 			logger.Warn("client not found for update", "id", id)
 			return response.NotFound(c, "CLIENT_NOT_FOUND", "Client not found")
 		}

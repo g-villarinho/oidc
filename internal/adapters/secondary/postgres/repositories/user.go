@@ -39,6 +39,10 @@ func (u *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	})
 
 	if err != nil {
+		if isUniqueViolation(err) {
+			return ports.ErrUniqueKeyViolation
+		}
+
 		return fmt.Errorf("persist user: %w", err)
 	}
 
@@ -48,6 +52,9 @@ func (u *UserRepository) Create(ctx context.Context, user *domain.User) error {
 func (u *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
 	user, err := u.queries.GetByEmail(ctx, email)
 	if err != nil {
+		if isNotFound(err) {
+			return nil, ports.ErrNotFound
+		}
 		return nil, fmt.Errorf("get user by email: %w", err)
 	}
 
@@ -62,6 +69,9 @@ func (u *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.Use
 
 	user, err := u.queries.GetByID(ctx, pgUUID)
 	if err != nil {
+		if isNotFound(err) {
+			return nil, ports.ErrNotFound
+		}
 		return nil, fmt.Errorf("get user by id: %w", err)
 	}
 

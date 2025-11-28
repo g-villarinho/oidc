@@ -3,6 +3,7 @@ package validation
 import (
 	"regexp"
 
+	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -16,6 +17,28 @@ func registerCustomRules(v *validator.Validate) error {
 	}
 
 	if err := v.RegisterValidation("br_phone", validateBrazilianPhone); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func registerCustomTranslations(v *validator.Validate, trans ut.Translator) error {
+	if err := v.RegisterTranslation("strong_password", trans, func(ut ut.Translator) error {
+		return ut.Add("strong_password", "Password must be at least 8 characters long and contain uppercase, lowercase, and numeric characters", true)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("strong_password")
+		return t
+	}); err != nil {
+		return err
+	}
+
+	if err := v.RegisterTranslation("br_phone", trans, func(ut ut.Translator) error {
+		return ut.Add("br_phone", "Invalid Brazilian phone number format", true)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("br_phone")
+		return t
+	}); err != nil {
 		return err
 	}
 

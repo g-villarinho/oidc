@@ -31,6 +31,10 @@ func init() {
 	if err := en_translations.RegisterDefaultTranslations(validate, transEN); err != nil {
 		log.Fatal(err)
 	}
+
+	if err := registerCustomTranslations(validate, transEN); err != nil {
+		log.Fatal(err)
+	}
 }
 
 type CustomValidator struct {

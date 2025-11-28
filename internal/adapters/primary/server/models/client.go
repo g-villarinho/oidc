@@ -3,20 +3,20 @@ package models
 import "github.com/g-villarinho/oidc-server/internal/core/domain"
 
 type CreateClientPayload struct {
-	ClientName    string   `json:"client_name" binding:"required"`
-	RedirectURIs  []string `json:"redirect_uris" binding:"required,min=1"`
-	GrantTypes    []string `json:"grant_types" binding:"required,min=1"`
-	ResponseTypes []string `json:"response_types" binding:"required,min=1"`
-	Scopes        []string `json:"scopes" binding:"required,min=1"`
+	ClientName    string   `json:"client_name" validate:"required"`
+	RedirectURIs  []string `json:"redirect_uris" validate:"required,min=1"`
+	GrantTypes    []string `json:"grant_types" validate:"required,min=1"`
+	ResponseTypes []string `json:"response_types" validate:"required,min=1"`
+	Scopes        []string `json:"scopes" validate:"required,min=1"`
 	LogoURL       string   `json:"logo_url"`
 }
 
 type UpdateClientPayload struct {
-	ClientName    string   `json:"client_name" binding:"required"`
-	RedirectURIs  []string `json:"redirect_uris" binding:"required,min=1"`
-	GrantTypes    []string `json:"grant_types" binding:"required,min=1"`
-	ResponseTypes []string `json:"response_types" binding:"required,min=1"`
-	Scopes        []string `json:"scopes" binding:"required,min=1"`
+	ClientName    string   `json:"client_name" validate:"required"`
+	RedirectURIs  []string `json:"redirect_uris" validate:"required,min=1"`
+	GrantTypes    []string `json:"grant_types" validate:"required,min=1"`
+	ResponseTypes []string `json:"response_types" validate:"required,min=1"`
+	Scopes        []string `json:"scopes" validate:"required,min=1"`
 }
 
 type ClientResponse struct {
