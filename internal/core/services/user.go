@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"github.com/g-villarinho/oidc-server/internal/core/domain"
 	"github.com/g-villarinho/oidc-server/internal/core/ports"
@@ -13,12 +14,14 @@ import (
 type UserService struct {
 	userRepository ports.UserRepository
 	hasher         ports.Hasher
+	logger         *slog.Logger
 }
 
-func NewUserService(userRepo ports.UserRepository, hasher ports.Hasher) *UserService {
+func NewUserService(userRepo ports.UserRepository, hasher ports.Hasher, logger *slog.Logger) *UserService {
 	return &UserService{
 		userRepository: userRepo,
 		hasher:         hasher,
+		logger:         logger.With("service", "user"),
 	}
 }
 
@@ -54,6 +57,8 @@ func (s *UserService) CreateUser(ctx context.Context, name, email, password stri
 }
 
 func (s *UserService) Authenticate(ctx context.Context, email, password string) (*domain.User, error) {
+	logger := s.logger.With("method", "Authenticate")
+
 	user, err := s.userRepository.GetByEmail(ctx, email)
 	if err != nil {
 		return nil, fmt.Errorf("get user by email: %w", err)
@@ -63,7 +68,8 @@ func (s *UserService) Authenticate(ctx context.Context, email, password string) 
 		return nil, domain.ErrUserNotFound
 	}
 
-	if err := s.hasher.Compare(ctx, user.PasswordHash, password); err != nil {
+	if err := s.hasher.Compare(ctx, password, user.PasswordHash); err != nil {
+		logger.Warn("error to compare password", slog.Any("err", err))
 		return nil, domain.ErrPasswordMismatch
 	}
 
