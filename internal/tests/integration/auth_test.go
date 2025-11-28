@@ -3,17 +3,13 @@
 package integration
 
 import (
-	"bytes"
 	"encoding/json"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/g-villarinho/oidc-server/internal/adapters/primary/server/handlers"
 	"github.com/g-villarinho/oidc-server/internal/adapters/primary/server/models"
 	"github.com/g-villarinho/oidc-server/internal/core/services"
-	"github.com/g-villarinho/oidc-server/pkg/validation"
-	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -56,12 +52,7 @@ func TestLogin_Endpoint(t *testing.T) {
 		body, _ := json.Marshal(payload)
 
 		// Create HTTP request
-		e := echo.New()
-		e.Validator = validation.NewValidator()
-		req := httptest.NewRequest(http.MethodPost, "/v1/auth/login", bytes.NewReader(body))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := MakeRequest(http.MethodPost, "/v1/auth/login", body)
 
 		// Execute handler
 		err := authHandler.Login(c)
@@ -108,12 +99,7 @@ func TestLogin_Endpoint(t *testing.T) {
 
 		body, _ := json.Marshal(payload)
 
-		e := echo.New()
-		e.Validator = validation.NewValidator()
-		req := httptest.NewRequest(http.MethodPost, "/v1/auth/login", bytes.NewReader(body))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := MakeRequest(http.MethodPost, "/v1/auth/login", body)
 
 		err := authHandler.Login(c)
 
@@ -148,12 +134,7 @@ func TestLogin_Endpoint(t *testing.T) {
 
 		body, _ := json.Marshal(payload)
 
-		e := echo.New()
-		e.Validator = validation.NewValidator()
-		req := httptest.NewRequest(http.MethodPost, "/v1/auth/login", bytes.NewReader(body))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := MakeRequest(http.MethodPost, "/v1/auth/login", body)
 
 		err := authHandler.Login(c)
 
@@ -188,12 +169,7 @@ func TestLogin_Endpoint(t *testing.T) {
 
 		body, _ := json.Marshal(payload)
 
-		e := echo.New()
-		e.Validator = validation.NewValidator()
-		req := httptest.NewRequest(http.MethodPost, "/v1/auth/login", bytes.NewReader(body))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := MakeRequest(http.MethodPost, "/v1/auth/login", body)
 
 		err := authHandler.Login(c)
 
@@ -215,12 +191,7 @@ func TestLogin_Endpoint(t *testing.T) {
 
 		body, _ := json.Marshal(payload)
 
-		e := echo.New()
-		e.Validator = validation.NewValidator()
-		req := httptest.NewRequest(http.MethodPost, "/v1/auth/login", bytes.NewReader(body))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := MakeRequest(http.MethodPost, "/v1/auth/login", body)
 
 		err := authHandler.Login(c)
 
@@ -239,12 +210,7 @@ func TestLogin_Endpoint(t *testing.T) {
 
 		body, _ := json.Marshal(payload)
 
-		e := echo.New()
-		e.Validator = validation.NewValidator()
-		req := httptest.NewRequest(http.MethodPost, "/v1/auth/login", bytes.NewReader(body))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := MakeRequest(http.MethodPost, "/v1/auth/login", body)
 
 		err := authHandler.Login(c)
 
@@ -263,12 +229,7 @@ func TestLogin_Endpoint(t *testing.T) {
 
 		body, _ := json.Marshal(payload)
 
-		e := echo.New()
-		e.Validator = validation.NewValidator()
-		req := httptest.NewRequest(http.MethodPost, "/v1/auth/login", bytes.NewReader(body))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := MakeRequest(http.MethodPost, "/v1/auth/login", body)
 
 		err := authHandler.Login(c)
 
@@ -299,12 +260,7 @@ func TestLogin_Endpoint(t *testing.T) {
 
 		body, _ := json.Marshal(payload)
 
-		e := echo.New()
-		e.Validator = validation.NewValidator()
-		req := httptest.NewRequest(http.MethodPost, "/v1/auth/login", bytes.NewReader(body))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := MakeRequest(http.MethodPost, "/v1/auth/login", body)
 
 		err := authHandler.Login(c)
 
@@ -323,12 +279,7 @@ func TestLogin_Endpoint(t *testing.T) {
 
 		body := []byte(`{"email": "test@example.com", "password": `)
 
-		e := echo.New()
-		e.Validator = validation.NewValidator()
-		req := httptest.NewRequest(http.MethodPost, "/v1/auth/login", bytes.NewReader(body))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := MakeRequest(http.MethodPost, "/v1/auth/login", body)
 
 		err := authHandler.Login(c)
 
@@ -360,12 +311,7 @@ func TestRegister_Endpoint(t *testing.T) {
 
 		body, _ := json.Marshal(payload)
 
-		e := echo.New()
-		e.Validator = validation.NewValidator()
-		req := httptest.NewRequest(http.MethodPost, "/v1/auth/register", bytes.NewReader(body))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := MakeRequest(http.MethodPost, "/v1/auth/register", body)
 
 		err := authHandler.RegisterUser(c)
 
@@ -394,12 +340,7 @@ func TestRegister_Endpoint(t *testing.T) {
 
 		body, _ := json.Marshal(payload)
 
-		e := echo.New()
-		e.Validator = validation.NewValidator()
-		req := httptest.NewRequest(http.MethodPost, "/v1/auth/register", bytes.NewReader(body))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := MakeRequest(http.MethodPost, "/v1/auth/register", body)
 
 		err := authHandler.RegisterUser(c)
 
@@ -421,12 +362,7 @@ func TestRegister_Endpoint(t *testing.T) {
 
 		body, _ := json.Marshal(payload)
 
-		e := echo.New()
-		e.Validator = validation.NewValidator()
-		req := httptest.NewRequest(http.MethodPost, "/v1/auth/register", bytes.NewReader(body))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := MakeRequest(http.MethodPost, "/v1/auth/register", body)
 
 		err := authHandler.RegisterUser(c)
 
@@ -444,12 +380,7 @@ func TestRegister_Endpoint(t *testing.T) {
 
 		body, _ := json.Marshal(payload)
 
-		e := echo.New()
-		e.Validator = validation.NewValidator()
-		req := httptest.NewRequest(http.MethodPost, "/v1/auth/register", bytes.NewReader(body))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := MakeRequest(http.MethodPost, "/v1/auth/register", body)
 
 		err := authHandler.RegisterUser(c)
 
@@ -468,12 +399,7 @@ func TestRegister_Endpoint(t *testing.T) {
 
 		body, _ := json.Marshal(payload)
 
-		e := echo.New()
-		e.Validator = validation.NewValidator()
-		req := httptest.NewRequest(http.MethodPost, "/v1/auth/register", bytes.NewReader(body))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := MakeRequest(http.MethodPost, "/v1/auth/register", body)
 
 		err := authHandler.RegisterUser(c)
 
@@ -492,12 +418,7 @@ func TestRegister_Endpoint(t *testing.T) {
 
 		body, _ := json.Marshal(payload)
 
-		e := echo.New()
-		e.Validator = validation.NewValidator()
-		req := httptest.NewRequest(http.MethodPost, "/v1/auth/register", bytes.NewReader(body))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := MakeRequest(http.MethodPost, "/v1/auth/register", body)
 
 		err := authHandler.RegisterUser(c)
 
@@ -516,12 +437,7 @@ func TestRegister_Endpoint(t *testing.T) {
 
 		body, _ := json.Marshal(payload)
 
-		e := echo.New()
-		e.Validator = validation.NewValidator()
-		req := httptest.NewRequest(http.MethodPost, "/v1/auth/register", bytes.NewReader(body))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := MakeRequest(http.MethodPost, "/v1/auth/register", body)
 
 		err := authHandler.RegisterUser(c)
 
@@ -534,12 +450,7 @@ func TestRegister_Endpoint(t *testing.T) {
 
 		body := []byte(`{"name": "Test User", "email": `)
 
-		e := echo.New()
-		e.Validator = validation.NewValidator()
-		req := httptest.NewRequest(http.MethodPost, "/v1/auth/register", bytes.NewReader(body))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := MakeRequest(http.MethodPost, "/v1/auth/register", body)
 
 		err := authHandler.RegisterUser(c)
 
@@ -558,16 +469,10 @@ func TestRegister_Endpoint(t *testing.T) {
 
 		body, _ := json.Marshal(payload)
 
-		e := echo.New()
-		e.Validator = validation.NewValidator()
-		req := httptest.NewRequest(http.MethodPost, "/v1/auth/register", bytes.NewReader(body))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := MakeRequest(http.MethodPost, "/v1/auth/register", body)
 
 		err := authHandler.RegisterUser(c)
 
-		// Should fail (email validation rejects whitespace)
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
 	})
@@ -575,7 +480,6 @@ func TestRegister_Endpoint(t *testing.T) {
 	t.Run("should handle very long name", func(t *testing.T) {
 		env.Reset(t)
 
-		// Create a very long name (300 characters)
 		longName := ""
 		for i := 0; i < 300; i++ {
 			longName += "a"
@@ -589,17 +493,11 @@ func TestRegister_Endpoint(t *testing.T) {
 
 		body, _ := json.Marshal(payload)
 
-		e := echo.New()
-		e.Validator = validation.NewValidator()
-		req := httptest.NewRequest(http.MethodPost, "/v1/auth/register", bytes.NewReader(body))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c, rec := MakeRequest(http.MethodPost, "/v1/auth/register", body)
 
 		err := authHandler.RegisterUser(c)
 
-		// Depending on validation rules, this might succeed or fail
-		// Adjust expectation based on your validation
 		require.NoError(t, err)
+		assert.True(t, rec.Code == http.StatusCreated || rec.Code == http.StatusUnprocessableEntity)
 	})
 }

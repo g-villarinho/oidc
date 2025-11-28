@@ -19,11 +19,9 @@ import (
 )
 
 const (
-	testDBName   = "oidc_test"
-	testDBUser   = "test_user"
-	testDBPass   = "test_password"
-	postgresPort = "5432/tcp"
-	redisPort    = "6379/tcp"
+	testDBName = "oidc_test"
+	testDBUser = "test_user"
+	testDBPass = "test_password"
 )
 
 type TestDB struct {
@@ -45,11 +43,9 @@ func SetupTestDB(t *testing.T) *TestDB {
 	t.Helper()
 	ctx := context.Background()
 
-	// Get the path to schema.sql
 	_, currentFile, _, _ := runtime.Caller(0)
 	schemaPath := filepath.Join(filepath.Dir(currentFile), "..", "..", "adapters", "secondary", "postgres", "schema.sql")
 
-	// Create PostgreSQL container
 	container, err := postgres.Run(ctx,
 		"postgres:16-alpine",
 		postgres.WithDatabase(testDBName),
@@ -66,13 +62,11 @@ func SetupTestDB(t *testing.T) *TestDB {
 		t.Fatalf("failed to start postgres container: %v", err)
 	}
 
-	// Get connection string
 	connStr, err := container.ConnectionString(ctx, "sslmode=disable")
 	if err != nil {
 		t.Fatalf("failed to get connection string: %v", err)
 	}
 
-	// Create connection pool
 	poolConfig, err := pgxpool.ParseConfig(connStr)
 	if err != nil {
 		t.Fatalf("failed to parse pool config: %v", err)
@@ -86,7 +80,6 @@ func SetupTestDB(t *testing.T) *TestDB {
 		t.Fatalf("failed to create pool: %v", err)
 	}
 
-	// Verify connection
 	if err := pool.Ping(ctx); err != nil {
 		t.Fatalf("failed to ping database: %v", err)
 	}
@@ -97,7 +90,6 @@ func SetupTestDB(t *testing.T) *TestDB {
 	}
 }
 
-// Teardown closes the pool and terminates the container
 func (db *TestDB) Teardown(t *testing.T) {
 	t.Helper()
 	ctx := context.Background()

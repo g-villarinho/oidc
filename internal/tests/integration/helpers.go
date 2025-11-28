@@ -3,8 +3,10 @@
 package integration
 
 import (
+	"bytes"
 	"context"
 	"log/slog"
+	"net/http/httptest"
 	"os"
 	"testing"
 	"time"
@@ -16,15 +18,15 @@ import (
 	"github.com/g-villarinho/oidc-server/internal/core/domain"
 	"github.com/g-villarinho/oidc-server/internal/core/ports"
 	"github.com/g-villarinho/oidc-server/internal/core/services"
+	"github.com/g-villarinho/oidc-server/pkg/validation"
 	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 )
 
-// TestUserBuilder provides a fluent API for creating test users
 type TestUserBuilder struct {
 	user *domain.User
 }
 
-// NewTestUser creates a new user builder with default values
 func NewTestUser() *TestUserBuilder {
 	id, _ := uuid.NewV7()
 	now := time.Now().UTC()
@@ -71,12 +73,10 @@ func (b *TestUserBuilder) Build() *domain.User {
 	return b.user
 }
 
-// TestClientBuilder provides a fluent API for creating test clients
 type TestClientBuilder struct {
 	client *domain.Client
 }
 
-// NewTestClient creates a new client builder with default values
 func NewTestClient() *TestClientBuilder {
 	id, _ := uuid.NewV7()
 	now := time.Now().UTC()
@@ -147,12 +147,10 @@ func (b *TestClientBuilder) Build() *domain.Client {
 	return b.client
 }
 
-// TestAuthorizationCodeBuilder provides a fluent API for creating test auth codes
 type TestAuthorizationCodeBuilder struct {
 	code *domain.AuthorizationCode
 }
 
-// NewTestAuthorizationCode creates a new auth code builder with default values
 func NewTestAuthorizationCode(clientID string, userID uuid.UUID) *TestAuthorizationCodeBuilder {
 	return &TestAuthorizationCodeBuilder{
 		code: &domain.AuthorizationCode{
@@ -203,7 +201,6 @@ func (b *TestAuthorizationCodeBuilder) Build() *domain.AuthorizationCode {
 	return b.code
 }
 
-// MustCreateUser is a helper to create a user in the database for tests
 func MustCreateUser(t *testing.T, db *TestDB, user *domain.User) {
 	t.Helper()
 	ctx := context.Background()
@@ -227,7 +224,6 @@ func MustCreateUser(t *testing.T, db *TestDB, user *domain.User) {
 	}
 }
 
-// MustCreateClient is a helper to create a client in the database for tests
 func MustCreateClient(t *testing.T, db *TestDB, client *domain.Client) {
 	t.Helper()
 	ctx := context.Background()
@@ -255,7 +251,6 @@ func MustCreateClient(t *testing.T, db *TestDB, client *domain.Client) {
 	}
 }
 
-// MustHashPassword is a helper to hash a password for tests
 func MustHashPassword(t *testing.T, password string) string {
 	t.Helper()
 	ctx := context.Background()
@@ -269,25 +264,21 @@ func MustHashPassword(t *testing.T, password string) string {
 	return hash
 }
 
-// TestServices holds all services needed for integration tests
 type TestServices struct {
 	UserService services.UserService
 	AuthService services.AuthService
 }
 
-// NewTestHasher creates a new hasher for testing
 func NewTestHasher() ports.Hasher {
 	return argon2.NewHasher()
 }
 
-// NewTestLogger creates a new logger for testing
 func NewTestLogger() *slog.Logger {
 	return slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-		Level: slog.LevelError, // Only show errors in tests
+		Level: slog.LevelError,
 	}))
 }
 
-// NewTestConfig creates a test configuration
 func NewTestConfig() *config.Config {
 	return &config.Config{
 		Session: config.Session{
@@ -295,26 +286,22 @@ func NewTestConfig() *config.Config {
 			Secret:   "test-secret-key-for-integration-tests-min-32-chars",
 			CookieOptions: config.CookieOptions{
 				Name:   "_oidc.sid",
-				Secure: false, // Test environment
+				Secure: false,
 			},
 		},
 	}
 }
 
-// SetupTestServices creates all services needed for integration tests
 func SetupTestServices(t *testing.T, env *TestEnv) *TestServices {
 	t.Helper()
 
-	// Create repositories
 	userRepo := pgRepo.NewUserRepository(env.DB.Pool)
 	sessionRepo := redisRepo.NewSessionRepository(env.Redis.Client)
 
-	// Create dependencies
 	hasher := NewTestHasher()
 	logger := NewTestLogger()
 	cfg := NewTestConfig()
 
-	// Create services
 	userService := services.NewUserService(userRepo, hasher, logger)
 	authService := services.NewAuthService(userService, userRepo, sessionRepo, cfg)
 
@@ -324,7 +311,6 @@ func SetupTestServices(t *testing.T, env *TestEnv) *TestServices {
 	}
 }
 
-// TestHTTPServer holds the HTTP server setup for integration tests
 type TestHTTPServer struct {
 	Services *TestServices
 	Config   *config.Config
@@ -332,7 +318,6 @@ type TestHTTPServer struct {
 	Hasher   ports.Hasher
 }
 
-// SetupTestHTTPServer creates an HTTP server setup for integration tests
 func SetupTestHTTPServer(t *testing.T, env *TestEnv) *TestHTTPServer {
 	t.Helper()
 
@@ -347,4 +332,18 @@ func SetupTestHTTPServer(t *testing.T, env *TestEnv) *TestHTTPServer {
 		Logger:   logger,
 		Hasher:   hasher,
 	}
+}
+
+// MakeRequest creates an Echo HTTP test request with validation configured.
+// Returns the Echo context and response recorder for testing handlers.
+func MakeRequest(method, target string, body []byte) (echo.Context, *httptest.ResponseRecorder) {
+	e := echo.New()
+	e.Validator = validation.NewValidator()
+
+	req := httptest.NewRequest(method, target, bytes.NewReader(body))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	return c, rec
 }
