@@ -9,19 +9,27 @@ import (
 	"github.com/google/uuid"
 )
 
-type ClientService struct {
+type ClientService interface {
+	CreateClient(ctx context.Context, params domain.CreateClientParams) (*domain.Client, error)
+	GetClientByID(ctx context.Context, id uuid.UUID) (*domain.Client, error)
+	ListClients(ctx context.Context) ([]*domain.Client, error)
+	UpdateClient(ctx context.Context, id uuid.UUID, clientName string, redirectURIs, grantTypes, responseTypes, scopes []string) (*domain.Client, error)
+	DeleteClient(ctx context.Context, id uuid.UUID) error
+}
+
+type ClientServiceImpl struct {
 	clientRepository ports.ClientRepository
 	hasher           ports.Hasher
 }
 
-func NewClientService(clientRepository ports.ClientRepository, hasher ports.Hasher) *ClientService {
-	return &ClientService{
+func NewClientService(clientRepository ports.ClientRepository, hasher ports.Hasher) ClientService {
+	return &ClientServiceImpl{
 		clientRepository: clientRepository,
 		hasher:           hasher,
 	}
 }
 
-func (s *ClientService) CreateClient(ctx context.Context, params domain.CreateClientParams) (*domain.Client, error) {
+func (s *ClientServiceImpl) CreateClient(ctx context.Context, params domain.CreateClientParams) (*domain.Client, error) {
 	clientID := uuid.New().String()
 
 	clientSecret, err := s.hasher.Hash(ctx, uuid.New().String())
@@ -41,7 +49,7 @@ func (s *ClientService) CreateClient(ctx context.Context, params domain.CreateCl
 	return client, nil
 }
 
-func (s *ClientService) GetClientByID(ctx context.Context, id uuid.UUID) (*domain.Client, error) {
+func (s *ClientServiceImpl) GetClientByID(ctx context.Context, id uuid.UUID) (*domain.Client, error) {
 	client, err := s.clientRepository.GetByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("get client by ID: %w", err)
@@ -50,7 +58,7 @@ func (s *ClientService) GetClientByID(ctx context.Context, id uuid.UUID) (*domai
 	return client, nil
 }
 
-func (s *ClientService) ListClients(ctx context.Context) ([]*domain.Client, error) {
+func (s *ClientServiceImpl) ListClients(ctx context.Context) ([]*domain.Client, error) {
 	clients, err := s.clientRepository.List(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("list clients: %w", err)
@@ -59,7 +67,7 @@ func (s *ClientService) ListClients(ctx context.Context) ([]*domain.Client, erro
 	return clients, nil
 }
 
-func (s *ClientService) UpdateClient(ctx context.Context, id uuid.UUID, clientName string, redirectURIs, grantTypes, responseTypes, scopes []string) (*domain.Client, error) {
+func (s *ClientServiceImpl) UpdateClient(ctx context.Context, id uuid.UUID, clientName string, redirectURIs, grantTypes, responseTypes, scopes []string) (*domain.Client, error) {
 	client, err := s.clientRepository.GetByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("get client for update: %w", err)
@@ -83,7 +91,7 @@ func (s *ClientService) UpdateClient(ctx context.Context, id uuid.UUID, clientNa
 	return updatedClient, nil
 }
 
-func (s *ClientService) DeleteClient(ctx context.Context, id uuid.UUID) error {
+func (s *ClientServiceImpl) DeleteClient(ctx context.Context, id uuid.UUID) error {
 	if err := s.clientRepository.Delete(ctx, id); err != nil {
 		return fmt.Errorf("delete client: %w", err)
 	}

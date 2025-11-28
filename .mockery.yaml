@@ -1,0 +1,17 @@
+all: false
+dir: internal/mocks
+filename: "{{ .InterfaceName | snakecase }}_mock.go"
+force-file-write: true
+formatter: goimports
+include-auto-generated: false
+log-level: info
+structname: "{{ .InterfaceName }}Mock"
+pkgname: mocks
+recursive: false
+require-template-schema-exists: false
+template: testify
+packages:
+  github.com/g-villarinho/oidc-server/internal/core/ports:
+    config:
+      all: true
+      recursive: true

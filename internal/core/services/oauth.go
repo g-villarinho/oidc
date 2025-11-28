@@ -9,19 +9,24 @@ import (
 	"github.com/google/uuid"
 )
 
-type AuthorizationService struct {
+type AuthorizationService interface {
+	ValidateAuthorizationClient(ctx context.Context, params domain.AuthorizeParams) (*domain.Client, error)
+	Authorize(ctx context.Context, userID uuid.UUID, client *domain.Client, params domain.AuthorizeParams) (string, error)
+}
+
+type AuthorizationServiceImpl struct {
 	clientRepository            ports.ClientRepository
 	authorizationCodeRepository ports.AuthorizationCodeRepository
 }
 
-func NewAuthorizationService(clientRepository ports.ClientRepository, authorizationCodeRepository ports.AuthorizationCodeRepository) *AuthorizationService {
-	return &AuthorizationService{
+func NewAuthorizationService(clientRepository ports.ClientRepository, authorizationCodeRepository ports.AuthorizationCodeRepository) *AuthorizationServiceImpl {
+	return &AuthorizationServiceImpl{
 		clientRepository:            clientRepository,
 		authorizationCodeRepository: authorizationCodeRepository,
 	}
 }
 
-func (s *AuthorizationService) ValidateAuthorizationClient(ctx context.Context, params domain.AuthorizeParams) (*domain.Client, error) {
+func (s *AuthorizationServiceImpl) ValidateAuthorizationClient(ctx context.Context, params domain.AuthorizeParams) (*domain.Client, error) {
 	client, err := s.clientRepository.GetByClientID(ctx, params.ClientID)
 	if err != nil {
 		return nil, fmt.Errorf("validate authorization client: %w", err)
@@ -46,7 +51,7 @@ func (s *AuthorizationService) ValidateAuthorizationClient(ctx context.Context, 
 	return client, nil
 }
 
-func (s *AuthorizationService) Authorize(ctx context.Context, userID uuid.UUID, client *domain.Client, params domain.AuthorizeParams) (string, error) {
+func (s *AuthorizationServiceImpl) Authorize(ctx context.Context, userID uuid.UUID, client *domain.Client, params domain.AuthorizeParams) (string, error) {
 	authorizationCode, err := domain.NewAuthorizationCode(
 		client.ClientID,
 		userID,

@@ -10,15 +10,25 @@ import (
 	"github.com/google/uuid"
 )
 
-type AuthService struct {
-	userService       *UserService
+type AuthService interface {
+	RegisterUser(ctx context.Context, name, email, password string) error
+	Login(ctx context.Context, email, password string) (*domain.Session, *domain.User, error)
+	GetSessionUser(ctx context.Context, sessionID uuid.UUID) (*domain.User, error)
+}
+
+type AuthServiceImpl struct {
+	userService       UserService
 	userRepository    ports.UserRepository
 	sessionRepository ports.SessionRepository
 	sessionConfig     config.Session
 }
 
-func NewAuthService(userService *UserService, userRepository ports.UserRepository, sessionRepository ports.SessionRepository, config *config.Config) *AuthService {
-	return &AuthService{
+func NewAuthService(
+	userService UserService,
+	userRepository ports.UserRepository,
+	sessionRepository ports.SessionRepository,
+	config *config.Config) AuthService {
+	return &AuthServiceImpl{
 		userService:       userService,
 		userRepository:    userRepository,
 		sessionRepository: sessionRepository,
@@ -26,7 +36,7 @@ func NewAuthService(userService *UserService, userRepository ports.UserRepositor
 	}
 }
 
-func (s *AuthService) RegisterUser(ctx context.Context, name, email, password string) error {
+func (s *AuthServiceImpl) RegisterUser(ctx context.Context, name, email, password string) error {
 	_, err := s.userService.CreateUser(ctx, name, email, password)
 	if err != nil {
 		return fmt.Errorf("register user: %w", err)
@@ -37,7 +47,7 @@ func (s *AuthService) RegisterUser(ctx context.Context, name, email, password st
 	return nil
 }
 
-func (s *AuthService) Login(ctx context.Context, email, password string) (*domain.Session, *domain.User, error) {
+func (s *AuthServiceImpl) Login(ctx context.Context, email, password string) (*domain.Session, *domain.User, error) {
 	user, err := s.userService.Authenticate(ctx, email, password)
 	if err != nil {
 		return nil, nil, fmt.Errorf("login user: %w", err)
@@ -55,7 +65,7 @@ func (s *AuthService) Login(ctx context.Context, email, password string) (*domai
 	return session, user, nil
 }
 
-func (s *AuthService) GetSessionUser(ctx context.Context, sessionID uuid.UUID) (*domain.User, error) {
+func (s *AuthServiceImpl) GetSessionUser(ctx context.Context, sessionID uuid.UUID) (*domain.User, error) {
 	session, err := s.sessionRepository.GetByID(ctx, sessionID)
 	if err != nil {
 		return nil, fmt.Errorf("get session: %w", err)

@@ -16,11 +16,11 @@ var (
 )
 
 type CookieHandler struct {
-	cookieService *services.CookieService
+	cookieService services.CookieService
 	cookieOptions config.CookieOptions
 }
 
-func NewCookieHandler(cookieService *services.CookieService, config *config.Config) *CookieHandler {
+func NewCookieHandler(cookieService services.CookieService, config *config.Config) *CookieHandler {
 	return &CookieHandler{
 		cookieService: cookieService,
 		cookieOptions: config.Session.CookieOptions,

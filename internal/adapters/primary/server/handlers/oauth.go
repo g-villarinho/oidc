@@ -15,14 +15,14 @@ import (
 )
 
 type OAuthHandler struct {
-	service *services.AuthorizationService
+	service services.AuthorizationService
 	context *context.EchoContext
 	logger  *slog.Logger
 	url     config.URL
 }
 
 func NewOAuthHandler(
-	service *services.AuthorizationService,
+	service services.AuthorizationService,
 	context *context.EchoContext,
 	logger *slog.Logger,
 	config *config.Config,

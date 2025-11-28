@@ -14,11 +14,11 @@ import (
 )
 
 type ClientHandler struct {
-	clientService *services.ClientService
+	clientService services.ClientService
 	logger        *slog.Logger
 }
 
-func NewClientHandler(clientService *services.ClientService, logger *slog.Logger) *ClientHandler {
+func NewClientHandler(clientService services.ClientService, logger *slog.Logger) *ClientHandler {
 	return &ClientHandler{
 		clientService: clientService,
 		logger:        logger,

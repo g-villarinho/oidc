@@ -11,21 +11,26 @@ import (
 	"github.com/g-villarinho/oidc-server/internal/core/domain"
 )
 
-type CookieService struct {
+type CookieService interface {
+	SignSessionCookie(ctx context.Context, value string) string
+	VerifySessionCookie(ctx context.Context, signedValue string) (string, error)
+}
+
+type CookieServiceImpl struct {
 	secret []byte
 }
 
-func NewCookieService(config *config.Config) *CookieService {
-	return &CookieService{
+func NewCookieService(config *config.Config) CookieService {
+	return &CookieServiceImpl{
 		secret: []byte(config.Session.Secret),
 	}
 }
 
-func (s *CookieService) SignSessionCookie(ctx context.Context, value string) string {
+func (s *CookieServiceImpl) SignSessionCookie(ctx context.Context, value string) string {
 	return sign(value, s.secret)
 }
 
-func (s *CookieService) VerifySessionCookie(ctx context.Context, signedValue string) (string, error) {
+func (s *CookieServiceImpl) VerifySessionCookie(ctx context.Context, signedValue string) (string, error) {
 	parts := strings.Split(signedValue, ".")
 	if len(parts) != 2 {
 		return "", domain.ErrInvalidSessionSignature

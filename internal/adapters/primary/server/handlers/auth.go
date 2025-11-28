@@ -14,12 +14,12 @@ import (
 )
 
 type AuthHandler struct {
-	authService   *services.AuthService
+	authService   services.AuthService
 	cookieHandler *CookieHandler
 	logger        *slog.Logger
 }
 
-func NewAuthHandler(authService *services.AuthService, cookieHandler *CookieHandler, logger *slog.Logger) *AuthHandler {
+func NewAuthHandler(authService services.AuthService, cookieHandler *CookieHandler, logger *slog.Logger) *AuthHandler {
 	return &AuthHandler{
 		authService:   authService,
 		cookieHandler: cookieHandler,

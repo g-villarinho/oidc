@@ -11,21 +11,27 @@ import (
 	"github.com/google/uuid"
 )
 
-type UserService struct {
+type UserService interface {
+	CreateUser(ctx context.Context, name, email, password string) (*domain.User, error)
+	Authenticate(ctx context.Context, email, password string) (*domain.User, error)
+	GetUserByID(ctx context.Context, userID uuid.UUID) (*domain.User, error)
+}
+
+type UserServiceImpl struct {
 	userRepository ports.UserRepository
 	hasher         ports.Hasher
 	logger         *slog.Logger
 }
 
-func NewUserService(userRepo ports.UserRepository, hasher ports.Hasher, logger *slog.Logger) *UserService {
-	return &UserService{
+func NewUserService(userRepo ports.UserRepository, hasher ports.Hasher, logger *slog.Logger) UserService {
+	return &UserServiceImpl{
 		userRepository: userRepo,
 		hasher:         hasher,
 		logger:         logger.With("service", "user"),
 	}
 }
 
-func (s *UserService) CreateUser(ctx context.Context, name, email, password string) (*domain.User, error) {
+func (s *UserServiceImpl) CreateUser(ctx context.Context, name, email, password string) (*domain.User, error) {
 	existingUser, err := s.userRepository.GetByEmail(ctx, email)
 	if err != nil && !errors.Is(err, ports.ErrNotFound) {
 		return nil, fmt.Errorf("check existing user: %w", err)
@@ -56,7 +62,7 @@ func (s *UserService) CreateUser(ctx context.Context, name, email, password stri
 	return user, nil
 }
 
-func (s *UserService) Authenticate(ctx context.Context, email, password string) (*domain.User, error) {
+func (s *UserServiceImpl) Authenticate(ctx context.Context, email, password string) (*domain.User, error) {
 	logger := s.logger.With("method", "Authenticate")
 
 	user, err := s.userRepository.GetByEmail(ctx, email)
@@ -80,7 +86,7 @@ func (s *UserService) Authenticate(ctx context.Context, email, password string) 
 	return user, nil
 }
 
-func (s *UserService) GetUserByID(ctx context.Context, userID uuid.UUID) (*domain.User, error) {
+func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID uuid.UUID) (*domain.User, error) {
 	user, err := s.userRepository.GetByID(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("get user by ID: %w", err)
