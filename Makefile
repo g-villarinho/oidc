@@ -1,4 +1,4 @@
-.PHONY: sqlc sqlc-check docker-up docker-down docker-restart docker-logs docker-ps docker-clean docker-rebuild setup dev
+.PHONY: sqlc sqlc-check docker-up docker-down docker-restart docker-logs docker-ps docker-clean docker-rebuild setup dev mocks migrate-up migrate-down setup
 
 sqlc:
 	sqlc generate
@@ -37,3 +37,9 @@ docker-ps:
 
 dev:
 	@go run cmd/server/main.go
+
+mocks:
+	@mockery
+
+setup:
+	@go install github.com/vektra/mockery/v3@v3.6.1

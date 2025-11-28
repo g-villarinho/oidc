@@ -15,3 +15,7 @@ packages:
     config:
       all: true
       recursive: true
+  github.com/g-villarinho/oidc-server/internal/core/services:
+    config:
+      all: true
+      recursive: true
