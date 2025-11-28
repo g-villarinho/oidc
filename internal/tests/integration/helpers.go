@@ -4,10 +4,18 @@ package integration
 
 import (
 	"context"
+	"log/slog"
+	"os"
 	"testing"
 	"time"
 
+	"github.com/g-villarinho/oidc-server/internal/adapters/secondary/argon2"
+	pgRepo "github.com/g-villarinho/oidc-server/internal/adapters/secondary/postgres/repositories"
+	redisRepo "github.com/g-villarinho/oidc-server/internal/adapters/secondary/redis/repositories"
+	"github.com/g-villarinho/oidc-server/internal/config"
 	"github.com/g-villarinho/oidc-server/internal/core/domain"
+	"github.com/g-villarinho/oidc-server/internal/core/ports"
+	"github.com/g-villarinho/oidc-server/internal/core/services"
 	"github.com/google/uuid"
 )
 
@@ -244,5 +252,99 @@ func MustCreateClient(t *testing.T, db *TestDB, client *domain.Client) {
 	)
 	if err != nil {
 		t.Fatalf("failed to create test client: %v", err)
+	}
+}
+
+// MustHashPassword is a helper to hash a password for tests
+func MustHashPassword(t *testing.T, password string) string {
+	t.Helper()
+	ctx := context.Background()
+
+	hasher := NewTestHasher()
+	hash, err := hasher.Hash(ctx, password)
+	if err != nil {
+		t.Fatalf("failed to hash password: %v", err)
+	}
+
+	return hash
+}
+
+// TestServices holds all services needed for integration tests
+type TestServices struct {
+	UserService services.UserService
+	AuthService services.AuthService
+}
+
+// NewTestHasher creates a new hasher for testing
+func NewTestHasher() ports.Hasher {
+	return argon2.NewHasher()
+}
+
+// NewTestLogger creates a new logger for testing
+func NewTestLogger() *slog.Logger {
+	return slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelError, // Only show errors in tests
+	}))
+}
+
+// NewTestConfig creates a test configuration
+func NewTestConfig() *config.Config {
+	return &config.Config{
+		Session: config.Session{
+			Duration: 24 * time.Hour,
+			Secret:   "test-secret-key-for-integration-tests-min-32-chars",
+			CookieOptions: config.CookieOptions{
+				Name:   "_oidc.sid",
+				Secure: false, // Test environment
+			},
+		},
+	}
+}
+
+// SetupTestServices creates all services needed for integration tests
+func SetupTestServices(t *testing.T, env *TestEnv) *TestServices {
+	t.Helper()
+
+	// Create repositories
+	userRepo := pgRepo.NewUserRepository(env.DB.Pool)
+	sessionRepo := redisRepo.NewSessionRepository(env.Redis.Client)
+
+	// Create dependencies
+	hasher := NewTestHasher()
+	logger := NewTestLogger()
+	cfg := NewTestConfig()
+
+	// Create services
+	userService := services.NewUserService(userRepo, hasher, logger)
+	authService := services.NewAuthService(userService, userRepo, sessionRepo, cfg)
+
+	return &TestServices{
+		UserService: userService,
+		AuthService: authService,
+	}
+}
+
+// TestHTTPServer holds the HTTP server setup for integration tests
+type TestHTTPServer struct {
+	Services *TestServices
+	Config   *config.Config
+	Logger   *slog.Logger
+	Hasher   ports.Hasher
+}
+
+// SetupTestHTTPServer creates an HTTP server setup for integration tests
+func SetupTestHTTPServer(t *testing.T, env *TestEnv) *TestHTTPServer {
+	t.Helper()
+
+	services := SetupTestServices(t, env)
+	cfg := NewTestConfig()
+	logger := NewTestLogger()
+	hasher := NewTestHasher()
+
+	return &TestHTTPServer{
+		Services: services,
+		Config:   cfg,
+		Logger:   logger,
+		Hasher:   hasher,
 	}
 }
