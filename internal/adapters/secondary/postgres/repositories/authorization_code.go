@@ -42,12 +42,17 @@ func (r *AuthorizationCodeRepository) Create(ctx context.Context, code *domain.A
 		Valid:  true,
 	}
 
+	scopes := code.Scopes
+	if scopes == nil {
+		scopes = []string{}
+	}
+
 	_, err := r.queries.CreateAuthorizationCode(ctx, db.CreateAuthorizationCodeParams{
 		Code:                code.Code,
 		ClientID:            code.ClientID,
 		UserID:              userID,
 		RedirectUri:         code.RedirectURI,
-		Scopes:              code.Scopes,
+		Scopes:              scopes,
 		CodeChallenge:       codeChallenge,
 		CodeChallengeMethod: codeChallengeMethod,
 		ExpiresAt:           expiresAt,
