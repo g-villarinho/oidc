@@ -90,7 +90,7 @@ SELECT
     c.redirect_uris as client_redirect_uris,
     u.email as user_email
 FROM authorization_codes ac
-JOIN oauth_clients c ON ac.client_id = c.id
+JOIN oauth_clients c ON ac.client_id = c.client_id
 JOIN users u ON ac.user_id = u.id
 WHERE ac.code = $1 
   AND ac.expires_at > NOW()

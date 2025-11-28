@@ -1,4 +1,4 @@
-.PHONY: sqlc sqlc-check docker-up docker-down docker-restart docker-logs docker-ps docker-clean docker-rebuild setup dev mocks migrate-up migrate-down setup
+.PHONY: sqlc sqlc-check docker-up docker-down docker-restart docker-logs docker-ps docker-clean docker-rebuild setup dev mocks migrate-up migrate-down setup test test-unit test-integration test-coverage
 
 sqlc:
 	sqlc generate
@@ -43,3 +43,20 @@ mocks:
 
 setup:
 	@go install github.com/vektra/mockery/v3@v3.6.1
+
+# Test targets
+test: test-unit test-integration
+
+test-unit:
+	@echo "Running unit tests..."
+	@go test -v -race ./internal/core/services/... ./internal/adapters/...
+
+test-integration:
+	@echo "Running integration tests..."
+	@go test -v -tags=integration -race ./internal/tests/integration/...
+
+test-coverage:
+	@echo "Running tests with coverage..."
+	@go test -v -race -coverprofile=coverage.out ./...
+	@go tool cover -html=coverage.out -o coverage.html
+	@echo "Coverage report generated: coverage.html"
