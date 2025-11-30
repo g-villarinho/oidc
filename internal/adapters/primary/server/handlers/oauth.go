@@ -1,13 +1,13 @@
 package handlers
 
 import (
-	"fmt"
 	"log/slog"
 	"net/http"
 	"net/url"
 
 	"github.com/g-villarinho/oidc-server/internal/adapters/primary/server/context"
 	"github.com/g-villarinho/oidc-server/internal/adapters/primary/server/models"
+	"github.com/g-villarinho/oidc-server/internal/adapters/primary/server/response"
 	"github.com/g-villarinho/oidc-server/internal/config"
 	"github.com/g-villarinho/oidc-server/internal/core/services"
 	"github.com/g-villarinho/oidc-server/pkg/oauth"
@@ -15,23 +15,23 @@ import (
 )
 
 type OAuthHandler struct {
-	service services.OAuthService
-	context *context.EchoContext
-	logger  *slog.Logger
-	url     config.URL
+	oauthService services.OAuthService
+	context      *context.EchoContext
+	logger       *slog.Logger
+	url          config.URL
 }
 
 func NewOAuthHandler(
-	service services.OAuthService,
+	oauthService services.OAuthService,
 	context *context.EchoContext,
 	logger *slog.Logger,
 	config *config.Config,
 ) *OAuthHandler {
 	return &OAuthHandler{
-		service: service,
-		context: context,
-		logger:  logger.With("handler", "authorization"),
-		url:     config.URL,
+		oauthService: oauthService,
+		context:      context,
+		logger:       logger.With("handler", "authorization"),
+		url:          config.URL,
 	}
 }
 
@@ -40,7 +40,7 @@ func (h *OAuthHandler) Authorize(c echo.Context) error {
 
 	var payload models.AuthorizePayload
 	if err := c.Bind(&payload); err != nil {
-		logger.Error("failed to bind authorize payload", "error", err)
+		logger.Error("error to bind authorize payload", "error", err)
 		return c.String(http.StatusBadRequest, "invalid params authorize")
 	}
 
@@ -51,8 +51,8 @@ func (h *OAuthHandler) Authorize(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "invalid params authorize")
 	}
 
-	if err := h.service.VerifyAuthorization(c.Request().Context(), payload.ToAuthorizeParams()); err != nil {
-		logger.Error("failed to validate authorization client", "error", err)
+	if err := h.oauthService.VerifyAuthorization(c.Request().Context(), payload.ToAuthorizeParams()); err != nil {
+		logger.Error("error to verify authorization", "error", err)
 		// TODO: tratar erros específicos de redirect_uri diferente
 		// se redirect_uri for inválido, não pode redirecionar com erro
 		return c.String(http.StatusBadRequest, "invalid client authorization")
@@ -62,30 +62,29 @@ func (h *OAuthHandler) Authorize(c echo.Context) error {
 	if session == nil {
 		logger.Info("no active session, redirecting to login")
 
-		continueURLParams := models.ToContinueURLParams(payload)
+		continueURL := oauth.GenerateContinueURL(h.url.APIBaseURL, payload.ToContinueURLParams())
 
-		continueURL := oauth.GenerateContinueURL(h.url.APIBaseURL, continueURLParams)
-		loginParams := url.Values{}
-		loginParams.Set("continue", continueURL)
+		loginURL, err := url.Parse(h.url.AppBaseURL)
+		if err != nil {
+			logger.Error("error to parse app base URL", "error", err)
+			return response.InternalServerError(c, "The authorization workflow could not be completed due to an internal error.")
+		}
 
-		loginURL := fmt.Sprintf("%s/login?%s", h.url.AppBaseURL, loginParams.Encode())
+		loginURL.Path = "/login"
+		q := loginURL.Query()
+		q.Set("continue", continueURL)
+		loginURL.RawQuery = q.Encode()
 
-		return c.Redirect(http.StatusFound, loginURL)
+		return c.Redirect(http.StatusFound, loginURL.String())
 	}
 
-	code, err := h.service.Authorize(c.Request().Context(), session.UserID, payload.ToAuthorizeParams())
+	authorizationCode, err := h.oauthService.CreateAuthorizationCode(c.Request().Context(), session.UserID, payload.ToAuthorizeParams())
 	if err != nil {
-		logger.Error("authorize client", "error", err)
-		return c.String(http.StatusInternalServerError, "failed to authorize client")
+		logger.Error("error to authorize client", "error", err)
+		return response.InternalServerError(c, "The authorization workflow could not be completed due to an internal error.")
 	}
 
-	redirectParams := url.Values{}
-	redirectParams.Set("code", code)
-	if payload.State != "" {
-		redirectParams.Set("state", payload.State)
-	}
-
-	redirectURI := fmt.Sprintf("%s?%s", payload.RedirectURI, redirectParams.Encode())
+	redirectURI := oauth.GenerateCallbackURL(payload.RedirectURI, authorizationCode.Code, payload.State)
 
 	return c.Redirect(http.StatusFound, redirectURI)
 }

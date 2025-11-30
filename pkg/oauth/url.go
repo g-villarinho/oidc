@@ -56,3 +56,21 @@ func GenerateContinueURL(baseURL string, params ContinueURLParams) string {
 
 	return u.String()
 }
+
+func GenerateCallbackURL(redirectURI, code, state string) string {
+	u, err := url.Parse(redirectURI)
+	if err != nil {
+		return redirectURI
+	}
+
+	q := u.Query()
+	q.Set("code", code)
+
+	if state != "" {
+		q.Set("state", state)
+	}
+
+	u.RawQuery = q.Encode()
+
+	return u.String()
+}

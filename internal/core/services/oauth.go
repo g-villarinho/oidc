@@ -11,7 +11,7 @@ import (
 
 type OAuthService interface {
 	VerifyAuthorization(ctx context.Context, params domain.AuthorizeParams) error
-	Authorize(ctx context.Context, userID uuid.UUID, params domain.AuthorizeParams) (string, error)
+	CreateAuthorizationCode(ctx context.Context, userID uuid.UUID, params domain.AuthorizeParams) (*domain.AuthorizationCode, error)
 	ExchangeToken(ctx context.Context, params domain.ExchangeTokenParams) error
 }
 
@@ -52,7 +52,7 @@ func (s *OAuthServiceImpl) VerifyAuthorization(ctx context.Context, params domai
 	return nil
 }
 
-func (s *OAuthServiceImpl) Authorize(ctx context.Context, userID uuid.UUID, params domain.AuthorizeParams) (string, error) {
+func (s *OAuthServiceImpl) CreateAuthorizationCode(ctx context.Context, userID uuid.UUID, params domain.AuthorizeParams) (*domain.AuthorizationCode, error) {
 	authorizationCode, err := domain.NewAuthorizationCode(
 		params.ClientID,
 		userID,
@@ -63,14 +63,14 @@ func (s *OAuthServiceImpl) Authorize(ctx context.Context, userID uuid.UUID, para
 	)
 
 	if err != nil {
-		return "", fmt.Errorf("create authorization code: %w", err)
+		return nil, fmt.Errorf("create authorization code: %w", err)
 	}
 
 	if err := s.authorizationCodeRepository.Create(ctx, authorizationCode); err != nil {
-		return "", fmt.Errorf("save authorization code: %w", err)
+		return nil, fmt.Errorf("save authorization code: %w", err)
 	}
 
-	return authorizationCode.Code, nil
+	return authorizationCode, nil
 }
 
 func (s *OAuthServiceImpl) ExchangeToken(ctx context.Context, params domain.ExchangeTokenParams) error {

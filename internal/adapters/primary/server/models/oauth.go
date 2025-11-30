@@ -36,16 +36,16 @@ func (p *AuthorizePayload) GetScopes() []string {
 	return strings.Fields(p.Scope)
 }
 
-func ToContinueURLParams(payload AuthorizePayload) oauth.ContinueURLParams {
+func (p *AuthorizePayload) ToContinueURLParams() oauth.ContinueURLParams {
 	return oauth.ContinueURLParams{
-		ClientID:            payload.ClientID,
-		RedirectURI:         payload.RedirectURI,
-		ResponseType:        payload.ResponseType,
-		Scopes:              payload.GetScopes(),
-		State:               payload.State,
-		Nonce:               payload.Nonce,
-		CodeChallenge:       payload.CodeChallenge,
-		CodeChallengeMethod: payload.CodeChallengeMethod,
+		ClientID:            p.ClientID,
+		RedirectURI:         p.RedirectURI,
+		ResponseType:        p.ResponseType,
+		Scopes:              p.GetScopes(),
+		State:               p.State,
+		Nonce:               p.Nonce,
+		CodeChallenge:       p.CodeChallenge,
+		CodeChallengeMethod: p.CodeChallengeMethod,
 	}
 }
 
