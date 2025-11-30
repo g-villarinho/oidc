@@ -33,6 +33,7 @@ CREATE TABLE authorization_codes (
     scopes TEXT[] NOT NULL,
     code_challenge VARCHAR(255),
     code_challenge_method VARCHAR(10),
+    used BOOLEAN NOT NULL DEFAULT FALSE,
     expires_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );

@@ -16,6 +16,7 @@ type AuthorizationCode struct {
 	Scopes              []string         `json:"scopes"`
 	CodeChallenge       pgtype.Text      `json:"code_challenge"`
 	CodeChallengeMethod pgtype.Text      `json:"code_challenge_method"`
+	Used                bool             `json:"used"`
 	ExpiresAt           pgtype.Timestamp `json:"expires_at"`
 	CreatedAt           pgtype.Timestamp `json:"created_at"`
 }

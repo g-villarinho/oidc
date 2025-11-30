@@ -96,6 +96,17 @@ func (h *OAuthHandler) Authorize(c echo.Context) error {
 func (h *OAuthHandler) Token(c echo.Context) error {
 	logger := h.logger.With("method", "Token")
 
+	var payload models.ExchangeTokenPayload
+	if err := c.Bind(&payload); err != nil {
+		logger.Error("error to bind token payload", "error", err)
+		return c.String(http.StatusBadRequest, "invalid params token")
+	}
+
+	if err := c.Validate(&payload); err != nil {
+		logger.Error("validate token payload", "error", err)
+		return c.String(http.StatusBadRequest, "invalid params token")
+	}
+
 	logger.Info("Token endpoint called")
 	return c.String(200, "Token issued successfully")
 }

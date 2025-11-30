@@ -23,7 +23,7 @@ INSERT INTO authorization_codes (
     expires_at
 ) VALUES (
     $1, $2, $3, $4, $5, $6, $7, $8
-) RETURNING code, client_id, user_id, redirect_uri, scopes, code_challenge, code_challenge_method, expires_at, created_at
+) RETURNING code, client_id, user_id, redirect_uri, scopes, code_challenge, code_challenge_method, used, expires_at, created_at
 `
 
 type CreateAuthorizationCodeParams struct {
@@ -57,6 +57,7 @@ func (q *Queries) CreateAuthorizationCode(ctx context.Context, arg CreateAuthori
 		&i.Scopes,
 		&i.CodeChallenge,
 		&i.CodeChallengeMethod,
+		&i.Used,
 		&i.ExpiresAt,
 		&i.CreatedAt,
 	)
@@ -85,7 +86,7 @@ func (q *Queries) DeleteExpiredAuthorizationCodes(ctx context.Context) error {
 
 const getAuthorizationCode = `-- name: GetAuthorizationCode :one
 SELECT 
-    ac.code, ac.client_id, ac.user_id, ac.redirect_uri, ac.scopes, ac.code_challenge, ac.code_challenge_method, ac.expires_at, ac.created_at,
+    ac.code, ac.client_id, ac.user_id, ac.redirect_uri, ac.scopes, ac.code_challenge, ac.code_challenge_method, ac.used, ac.expires_at, ac.created_at,
     c.client_id as client_client_id,
     c.redirect_uris as client_redirect_uris,
     u.email as user_email
@@ -105,6 +106,7 @@ type GetAuthorizationCodeRow struct {
 	Scopes              []string         `json:"scopes"`
 	CodeChallenge       pgtype.Text      `json:"code_challenge"`
 	CodeChallengeMethod pgtype.Text      `json:"code_challenge_method"`
+	Used                bool             `json:"used"`
 	ExpiresAt           pgtype.Timestamp `json:"expires_at"`
 	CreatedAt           pgtype.Timestamp `json:"created_at"`
 	ClientClientID      string           `json:"client_client_id"`
@@ -123,6 +125,7 @@ func (q *Queries) GetAuthorizationCode(ctx context.Context, code string) (GetAut
 		&i.Scopes,
 		&i.CodeChallenge,
 		&i.CodeChallengeMethod,
+		&i.Used,
 		&i.ExpiresAt,
 		&i.CreatedAt,
 		&i.ClientClientID,
