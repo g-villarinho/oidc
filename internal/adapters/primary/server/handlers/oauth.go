@@ -38,6 +38,11 @@ func NewOAuthHandler(
 func (h *OAuthHandler) Authorize(c echo.Context) error {
 	logger := h.logger.With("method", "Authorize")
 
+	session := h.context.GetSession(c)
+	if session != nil {
+		logger = logger.With("user_id", session.UserID)
+	}
+
 	var payload models.AuthorizePayload
 	if err := c.Bind(&payload); err != nil {
 		logger.Error("error to bind authorize payload", "error", err)
@@ -58,7 +63,6 @@ func (h *OAuthHandler) Authorize(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "invalid client authorization")
 	}
 
-	session := h.context.GetSession(c)
 	if session == nil {
 		logger.Info("no active session, redirecting to login")
 
@@ -90,5 +94,8 @@ func (h *OAuthHandler) Authorize(c echo.Context) error {
 }
 
 func (h *OAuthHandler) Token(c echo.Context) error {
+	logger := h.logger.With("method", "Token")
+
+	logger.Info("Token endpoint called")
 	return c.String(200, "Token issued successfully")
 }
