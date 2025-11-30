@@ -64,6 +64,10 @@ func (r *AuthorizationCodeRepository) Create(ctx context.Context, code *domain.A
 func (a *AuthorizationCodeRepository) GetByCode(ctx context.Context, code string) (*domain.AuthorizationCode, error) {
 	ac, err := a.queries.GetAuthorizationCode(ctx, code)
 	if err != nil {
+		if isNotFound(err) {
+			return nil, ports.ErrNotFound
+		}
+
 		return nil, err
 	}
 
@@ -83,4 +87,8 @@ func (a *AuthorizationCodeRepository) GetByCode(ctx context.Context, code string
 
 func (a *AuthorizationCodeRepository) Delete(ctx context.Context, code string) error {
 	return a.queries.DeleteAuthorizationCode(ctx, code)
+}
+
+func (r *AuthorizationCodeRepository) MarkAsUsed(ctx context.Context, code string) error {
+	return r.queries.MarkAuthorizationCodeAsUsed(ctx, code)
 }

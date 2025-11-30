@@ -134,3 +134,14 @@ func (q *Queries) GetAuthorizationCode(ctx context.Context, code string) (GetAut
 	)
 	return i, err
 }
+
+const markAuthorizationCodeAsUsed = `-- name: MarkAuthorizationCodeAsUsed :exec
+UPDATE authorization_codes
+SET used = TRUE
+WHERE code = $1
+`
+
+func (q *Queries) MarkAuthorizationCodeAsUsed(ctx context.Context, code string) error {
+	_, err := q.db.Exec(ctx, markAuthorizationCodeAsUsed, code)
+	return err
+}

@@ -74,5 +74,29 @@ func (s *OAuthServiceImpl) CreateAuthorizationCode(ctx context.Context, userID u
 }
 
 func (s *OAuthServiceImpl) ExchangeToken(ctx context.Context, params domain.ExchangeTokenParams) error {
-	panic("unimplemented")
+	authorizationCode, err := s.authorizationCodeRepository.GetByCode(ctx, params.Code)
+	if err != nil {
+		if err == ports.ErrNotFound {
+			return domain.ErrInvalidAuthorizationCode
+		}
+
+		return fmt.Errorf("get authorization code: %w", err)
+	}
+
+	if authorizationCode.Used {
+		//TODO: Revoke all tokens issued with this code's grant
+		return domain.ErrAuthorizationCodeAlreadyUsed
+	}
+
+	if authorizationCode.IsExpired() {
+		return domain.ErrAuthorizationCodeExpired
+	}
+
+	// Validation of client pkce, client_id redirect_uri should be done here
+
+	if err := s.authorizationCodeRepository.MarkAsUsed(ctx, authorizationCode.Code); err != nil {
+		return fmt.Errorf("mark authorization code as used: %w", err)
+	}
+
+	return nil
 }

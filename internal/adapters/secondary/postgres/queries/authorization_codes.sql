@@ -32,3 +32,8 @@ WHERE code = $1;
 -- name: DeleteExpiredAuthorizationCodes :exec
 DELETE FROM authorization_codes
 WHERE expires_at < NOW();
+
+-- name: MarkAuthorizationCodeAsUsed :exec
+UPDATE authorization_codes
+SET used = TRUE
+WHERE code = $1;

@@ -23,6 +23,7 @@ type Querier interface {
 	GetClientByClientID(ctx context.Context, clientID string) (OauthClient, error)
 	GetClientByID(ctx context.Context, id pgtype.UUID) (OauthClient, error)
 	ListClients(ctx context.Context) ([]OauthClient, error)
+	MarkAuthorizationCodeAsUsed(ctx context.Context, code string) error
 	UpdateClient(ctx context.Context, arg UpdateClientParams) (OauthClient, error)
 	UpdatePassword(ctx context.Context, arg UpdatePasswordParams) (User, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)

@@ -51,6 +51,7 @@ func (r *ClientRepository) GetByClientID(ctx context.Context, clientID string) (
 		if isNotFound(err) {
 			return nil, ports.ErrNotFound
 		}
+
 		return nil, fmt.Errorf("get client by clientID: %w", err)
 	}
 

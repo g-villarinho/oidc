@@ -3,11 +3,14 @@ package domain
 import "errors"
 
 var (
-	ErrClientNotFound          = errors.New("client not found")
-	ErrInvalidRedirectURI      = errors.New("invalid redirect URI")
-	ErrUnauthorizedClient      = errors.New("unauthorized client")
-	ErrUnsupportedResponseType = errors.New("unsupported response type")
-	ErrInvalidScope            = errors.New("invalid scope")
+	ErrClientNotFound               = errors.New("client not found")
+	ErrInvalidRedirectURI           = errors.New("invalid redirect URI")
+	ErrUnauthorizedClient           = errors.New("unauthorized client")
+	ErrUnsupportedResponseType      = errors.New("unsupported response type")
+	ErrInvalidScope                 = errors.New("invalid scope")
+	ErrInvalidAuthorizationCode     = errors.New("invalid authorization code")
+	ErrAuthorizationCodeAlreadyUsed = errors.New("authorization code already used")
+	ErrAuthorizationCodeExpired     = errors.New("authorization code expired")
 )
 
 type AuthorizeParams struct {

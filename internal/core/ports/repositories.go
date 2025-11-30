@@ -40,4 +40,5 @@ type AuthorizationCodeRepository interface {
 	Create(ctx context.Context, code *domain.AuthorizationCode) error
 	GetByCode(ctx context.Context, code string) (*domain.AuthorizationCode, error)
 	Delete(ctx context.Context, code string) error
+	MarkAsUsed(ctx context.Context, code string) error
 }

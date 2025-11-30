@@ -1,10 +1,11 @@
 .PHONY: sqlc sqlc-check docker-up docker-down docker-restart docker-logs docker-ps docker-clean docker-rebuild setup dev mocks migrate-up migrate-down setup test test-unit test-integration test-coverage
 
 sqlc:
-	cd internal/adapters/secondary/postgres && sqlc generate
+	@cd internal/adapters/secondary/postgres && sqlc generate
+	@echo "sqlc code generated successfully."
 
 sqlc-check:
-	cd internal/adapters/secondary/postgres && sqlc compile
+	@cd internal/adapters/secondary/postgres && sqlc compile
 
 migrate-up:
 	migrate -path internal/adapters/secondary/postgres/migrations \
