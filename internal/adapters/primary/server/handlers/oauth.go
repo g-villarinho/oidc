@@ -99,14 +99,14 @@ func (h *OAuthHandler) Token(c echo.Context) error {
 	var payload models.ExchangeTokenPayload
 	if err := c.Bind(&payload); err != nil {
 		logger.Error("error to bind token payload", "error", err)
-		return c.String(http.StatusBadRequest, "invalid params token")
+		return response.InvalidBind(c)
 	}
 
 	if err := c.Validate(&payload); err != nil {
 		logger.Error("validate token payload", "error", err)
-		return c.String(http.StatusBadRequest, "invalid params token")
+		return response.ValidationError(c, err)
 	}
 
 	logger.Info("Token endpoint called")
-	return c.String(200, "Token issued successfully")
+	return c.String(http.StatusOK, "Token issued successfully")
 }

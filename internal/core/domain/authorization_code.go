@@ -22,6 +22,7 @@ type AuthorizationCode struct {
 	Scopes              []string
 	CodeChallenge       string
 	CodeChallengeMethod string
+	Used                bool
 	ExpiresAt           time.Time
 	CreatedAt           time.Time
 }

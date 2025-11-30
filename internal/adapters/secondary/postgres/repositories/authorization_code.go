@@ -75,6 +75,7 @@ func (a *AuthorizationCodeRepository) GetByCode(ctx context.Context, code string
 		Scopes:              ac.Scopes,
 		CodeChallenge:       ac.CodeChallenge.String,
 		CodeChallengeMethod: ac.CodeChallengeMethod.String,
+		Used:                ac.Used,
 		ExpiresAt:           ac.ExpiresAt.Time,
 		CreatedAt:           ac.CreatedAt.Time,
 	}, nil
