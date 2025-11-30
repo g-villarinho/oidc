@@ -49,7 +49,7 @@ func (h *OAuthHandler) Authorize(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "invalid params authorize")
 	}
 
-	client, err := h.service.ValidateAuthorizationClient(c.Request().Context(), payload.ToAuthorizeParams())
+	client, err := h.service.ValidateOAuthClient(c.Request().Context(), payload.ToAuthorizeParams())
 	if err != nil {
 		logger.Error("failed to validate authorization client", "error", err)
 		return c.String(http.StatusBadRequest, "invalid client authorization")

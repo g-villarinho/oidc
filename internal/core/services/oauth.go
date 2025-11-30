@@ -10,8 +10,9 @@ import (
 )
 
 type AuthorizationService interface {
-	ValidateAuthorizationClient(ctx context.Context, params domain.AuthorizeParams) (*domain.Client, error)
+	ValidateOAuthClient(ctx context.Context, params domain.AuthorizeParams) (*domain.Client, error)
 	Authorize(ctx context.Context, userID uuid.UUID, client *domain.Client, params domain.AuthorizeParams) (string, error)
+	ExchangeToken(ctx context.Context, params domain.ExchangeTokenParams) error
 }
 
 type AuthorizationServiceImpl struct {
@@ -26,7 +27,7 @@ func NewAuthorizationService(clientRepository ports.ClientRepository, authorizat
 	}
 }
 
-func (s *AuthorizationServiceImpl) ValidateAuthorizationClient(ctx context.Context, params domain.AuthorizeParams) (*domain.Client, error) {
+func (s *AuthorizationServiceImpl) ValidateOAuthClient(ctx context.Context, params domain.AuthorizeParams) (*domain.Client, error) {
 	client, err := s.clientRepository.GetByClientID(ctx, params.ClientID)
 	if err != nil {
 		return nil, fmt.Errorf("validate authorization client: %w", err)
@@ -70,4 +71,8 @@ func (s *AuthorizationServiceImpl) Authorize(ctx context.Context, userID uuid.UU
 	}
 
 	return authorizationCode.Code, nil
+}
+
+func (s *AuthorizationServiceImpl) ExchangeToken(ctx context.Context, params domain.ExchangeTokenParams) error {
+	panic("unimplemented")
 }

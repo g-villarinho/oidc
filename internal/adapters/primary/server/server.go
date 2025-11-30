@@ -50,7 +50,7 @@ func NewServer(params ServerParams) *Server {
 	group := e.Group("/api")
 	registerAuthRoutes(group, params.AuthHandler)
 	registerClientRoutes(group, params.ClientHandler)
-	registerHealthRoutes(e, params.HealthHandler)
+	registerHealthRoutes(group, params.HealthHandler)
 	registerOAuthRoutes(group, params.OAuthHandler, params.AuthMiddleware)
 
 	return &Server{

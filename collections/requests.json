@@ -200,6 +200,109 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "oauth",
+			"item": [
+				{
+					"name": "Authorize",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "_oidc.sid=019ac842-0522-7c54-adb0-b1aaf88f4916.a101f81ac46d43ae64a4545b850880b61c7c2800a1e944ec827ea5b28a3b3b49",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5001/api/v1/oauth/authorize?client_id=71db9423-b9c1-444d-8725-706559c01f0d&redirect_uri=https://auth.openai.com/api/accounts/callback/google&response_type=code&scope=openid+profile+email&state=5675b08b-d48b-49d2-a038-9da7cb61f9ce&code_challenge=NguxrjpszkMAom4MY7JHo4nXadSaanz92PCvuXo4XQs&code_challenge_method=S256",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"api",
+								"v1",
+								"oauth",
+								"authorize"
+							],
+							"query": [
+								{
+									"key": "client_id",
+									"value": "71db9423-b9c1-444d-8725-706559c01f0d"
+								},
+								{
+									"key": "redirect_uri",
+									"value": "https://auth.openai.com/api/accounts/callback/google"
+								},
+								{
+									"key": "response_type",
+									"value": "code"
+								},
+								{
+									"key": "scope",
+									"value": "openid+profile+email"
+								},
+								{
+									"key": "state",
+									"value": "5675b08b-d48b-49d2-a038-9da7cb61f9ce"
+								},
+								{
+									"key": "code_challenge",
+									"value": "NguxrjpszkMAom4MY7JHo4nXadSaanz92PCvuXo4XQs"
+								},
+								{
+									"key": "code_challenge_method",
+									"value": "S256"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "monitoring",
+			"item": [
+				{
+					"name": "Readiness",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/health/ready",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"health",
+								"ready"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Liveness",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/health",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"health"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [

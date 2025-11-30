@@ -18,10 +18,21 @@ type AuthorizePayload struct {
 	CodeChallengeMethod string `query:"code_challenge_method" validate:"omitempty,oneof=plain S256"`
 }
 
+type ExchangeTokenPayload struct {
+	GrantType    string `form:"grant_type" validate:"required,oneof=authorization_code refresh_token"`
+	Code         string `form:"code" validate:"required_if=GrantType authorization_code"`
+	RedirectURI  string `form:"redirect_uri" validate:"required_if=GrantType authorization_code,omitempty,url"`
+	ClientID     string `form:"client_id" validate:"required"`
+	ClientSecret string `form:"client_secret" validate:"omitempty"`
+	CodeVerifier string `form:"code_verifier" validate:"omitempty"`
+	RefreshToken string `form:"refresh_token" validate:"required_if=GrantType refresh_token"`
+}
+
 func (p *AuthorizePayload) GetScopes() []string {
 	if p.Scope == "" {
 		return []string{}
 	}
+
 	return strings.Fields(p.Scope)
 }
 

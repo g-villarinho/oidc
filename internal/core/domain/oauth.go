@@ -20,3 +20,13 @@ type AuthorizeParams struct {
 	CodeChallenge       string
 	CodeChallengeMethod string
 }
+
+type ExchangeTokenParams struct {
+	GrantType    string
+	Code         string
+	RedirectURI  string
+	ClientID     string
+	ClientSecret string
+	CodeVerifier string
+	RefreshToken string
+}

@@ -49,7 +49,7 @@ func TestValidateAuthorizationClient(t *testing.T) {
 		}
 
 		// Act
-		client, err := authService.ValidateAuthorizationClient(ctx, params)
+		client, err := authService.ValidateOAuthClient(ctx, params)
 
 		// Assert
 		require.NoError(t, err)
@@ -79,7 +79,7 @@ func TestValidateAuthorizationClient(t *testing.T) {
 		}
 
 		// Act
-		client, err := authService.ValidateAuthorizationClient(ctx, params)
+		client, err := authService.ValidateOAuthClient(ctx, params)
 
 		// Assert
 		require.Error(t, err)
@@ -110,7 +110,7 @@ func TestValidateAuthorizationClient(t *testing.T) {
 		}
 
 		// Act
-		client, err := authService.ValidateAuthorizationClient(ctx, params)
+		client, err := authService.ValidateOAuthClient(ctx, params)
 
 		// Assert
 		require.Error(t, err)
@@ -152,7 +152,7 @@ func TestValidateAuthorizationClient(t *testing.T) {
 		}
 
 		// Act
-		client, err := authService.ValidateAuthorizationClient(ctx, params)
+		client, err := authService.ValidateOAuthClient(ctx, params)
 
 		// Assert
 		require.Error(t, err)
@@ -194,7 +194,7 @@ func TestValidateAuthorizationClient(t *testing.T) {
 		}
 
 		// Act
-		client, err := authService.ValidateAuthorizationClient(ctx, params)
+		client, err := authService.ValidateOAuthClient(ctx, params)
 
 		// Assert
 		require.Error(t, err)
@@ -236,7 +236,7 @@ func TestValidateAuthorizationClient(t *testing.T) {
 		}
 
 		// Act
-		client, err := authService.ValidateAuthorizationClient(ctx, params)
+		client, err := authService.ValidateOAuthClient(ctx, params)
 
 		// Assert
 		require.Error(t, err)
@@ -278,7 +278,7 @@ func TestValidateAuthorizationClient(t *testing.T) {
 		}
 
 		// Act
-		client, err := authService.ValidateAuthorizationClient(ctx, params)
+		client, err := authService.ValidateOAuthClient(ctx, params)
 
 		// Assert
 		require.NoError(t, err)
@@ -319,7 +319,7 @@ func TestValidateAuthorizationClient(t *testing.T) {
 		}
 
 		// Act
-		client, err := authService.ValidateAuthorizationClient(ctx, params)
+		client, err := authService.ValidateOAuthClient(ctx, params)
 
 		// Assert
 		require.NoError(t, err)

@@ -21,7 +21,7 @@ func registerAuthRoutes(e *echo.Group, authHandler *handlers.AuthHandler) {
 	authV1Group.POST("/register", authHandler.RegisterUser)
 }
 
-func registerHealthRoutes(e *echo.Echo, healthHandler *handlers.HealthHandler) {
+func registerHealthRoutes(e *echo.Group, healthHandler *handlers.HealthHandler) {
 	e.GET("/health", healthHandler.Liveness)
 	e.GET("/health/ready", healthHandler.Readiness)
 }
