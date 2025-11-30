@@ -9,52 +9,52 @@ import (
 	"github.com/google/uuid"
 )
 
-type AuthorizationService interface {
-	ValidateOAuthClient(ctx context.Context, params domain.AuthorizeParams) (*domain.Client, error)
-	Authorize(ctx context.Context, userID uuid.UUID, client *domain.Client, params domain.AuthorizeParams) (string, error)
+type OAuthService interface {
+	VerifyAuthorization(ctx context.Context, params domain.AuthorizeParams) error
+	Authorize(ctx context.Context, userID uuid.UUID, params domain.AuthorizeParams) (string, error)
 	ExchangeToken(ctx context.Context, params domain.ExchangeTokenParams) error
 }
 
-type AuthorizationServiceImpl struct {
+type OAuthServiceImpl struct {
 	clientRepository            ports.ClientRepository
 	authorizationCodeRepository ports.AuthorizationCodeRepository
 }
 
-func NewAuthorizationService(clientRepository ports.ClientRepository, authorizationCodeRepository ports.AuthorizationCodeRepository) AuthorizationService {
-	return &AuthorizationServiceImpl{
+func NewOAuthService(clientRepository ports.ClientRepository, authorizationCodeRepository ports.AuthorizationCodeRepository) OAuthService {
+	return &OAuthServiceImpl{
 		clientRepository:            clientRepository,
 		authorizationCodeRepository: authorizationCodeRepository,
 	}
 }
 
-func (s *AuthorizationServiceImpl) ValidateOAuthClient(ctx context.Context, params domain.AuthorizeParams) (*domain.Client, error) {
+func (s *OAuthServiceImpl) VerifyAuthorization(ctx context.Context, params domain.AuthorizeParams) error {
 	client, err := s.clientRepository.GetByClientID(ctx, params.ClientID)
 	if err != nil {
-		return nil, fmt.Errorf("validate authorization client: %w", err)
+		return fmt.Errorf("get validated OAuth client: %w", err)
 	}
 
 	if client == nil {
-		return nil, domain.ErrClientNotFound
+		return domain.ErrClientNotFound
 	}
 
 	if !client.HasRedirectURI(params.RedirectURI) {
-		return nil, domain.ErrInvalidRedirectURI
+		return domain.ErrInvalidRedirectURI
 	}
 
 	if !client.SupportsResponseType(params.ResponseType) {
-		return nil, domain.ErrUnsupportedResponseType
+		return domain.ErrUnsupportedResponseType
 	}
 
 	if !client.SupportsScopes(params.Scopes) {
-		return nil, domain.ErrInvalidScope
+		return domain.ErrInvalidScope
 	}
 
-	return client, nil
+	return nil
 }
 
-func (s *AuthorizationServiceImpl) Authorize(ctx context.Context, userID uuid.UUID, client *domain.Client, params domain.AuthorizeParams) (string, error) {
+func (s *OAuthServiceImpl) Authorize(ctx context.Context, userID uuid.UUID, params domain.AuthorizeParams) (string, error) {
 	authorizationCode, err := domain.NewAuthorizationCode(
-		client.ClientID,
+		params.ClientID,
 		userID,
 		params.RedirectURI,
 		params.Scopes,
@@ -73,6 +73,6 @@ func (s *AuthorizationServiceImpl) Authorize(ctx context.Context, userID uuid.UU
 	return authorizationCode.Code, nil
 }
 
-func (s *AuthorizationServiceImpl) ExchangeToken(ctx context.Context, params domain.ExchangeTokenParams) error {
+func (s *OAuthServiceImpl) ExchangeToken(ctx context.Context, params domain.ExchangeTokenParams) error {
 	panic("unimplemented")
 }

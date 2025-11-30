@@ -1,4 +1,4 @@
-package security
+package oauth
 
 import (
 	"net/url"
@@ -21,6 +21,8 @@ func GenerateContinueURL(baseURL string, params ContinueURLParams) string {
 	if err != nil {
 		return baseURL
 	}
+
+	u.Path = "/oauth/authorize"
 
 	q := u.Query()
 

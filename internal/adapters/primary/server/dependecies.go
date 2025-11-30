@@ -56,7 +56,7 @@ func provideServices(container *dig.Container) {
 	injector.Provide(container, services.NewClientService)
 	injector.Provide(container, services.NewUserService)
 	injector.Provide(container, services.NewCookieService)
-	injector.Provide(container, services.NewAuthorizationService)
+	injector.Provide(container, services.NewOAuthService)
 }
 
 func provideHandlers(container *dig.Container) {

@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/g-villarinho/oidc-server/internal/core/domain"
-	"github.com/g-villarinho/oidc-server/pkg/security"
+	"github.com/g-villarinho/oidc-server/pkg/oauth"
 )
 
 type AuthorizePayload struct {
@@ -36,8 +36,8 @@ func (p *AuthorizePayload) GetScopes() []string {
 	return strings.Fields(p.Scope)
 }
 
-func ToContinueURLParams(payload AuthorizePayload) security.ContinueURLParams {
-	return security.ContinueURLParams{
+func ToContinueURLParams(payload AuthorizePayload) oauth.ContinueURLParams {
+	return oauth.ContinueURLParams{
 		ClientID:            payload.ClientID,
 		RedirectURI:         payload.RedirectURI,
 		ResponseType:        payload.ResponseType,

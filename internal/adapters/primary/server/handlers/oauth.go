@@ -10,19 +10,19 @@ import (
 	"github.com/g-villarinho/oidc-server/internal/adapters/primary/server/models"
 	"github.com/g-villarinho/oidc-server/internal/config"
 	"github.com/g-villarinho/oidc-server/internal/core/services"
-	"github.com/g-villarinho/oidc-server/pkg/security"
+	"github.com/g-villarinho/oidc-server/pkg/oauth"
 	"github.com/labstack/echo/v4"
 )
 
 type OAuthHandler struct {
-	service services.AuthorizationService
+	service services.OAuthService
 	context *context.EchoContext
 	logger  *slog.Logger
 	url     config.URL
 }
 
 func NewOAuthHandler(
-	service services.AuthorizationService,
+	service services.OAuthService,
 	context *context.EchoContext,
 	logger *slog.Logger,
 	config *config.Config,
@@ -46,12 +46,15 @@ func (h *OAuthHandler) Authorize(c echo.Context) error {
 
 	if err := c.Validate(&payload); err != nil {
 		logger.Error("validate authorize payload", "error", err)
+		// TODO: redirecionar para redirect_uri com erro em vez de 400
+		// seguindo spec OAuth2 (se redirect_uri for válido)
 		return c.String(http.StatusBadRequest, "invalid params authorize")
 	}
 
-	client, err := h.service.ValidateOAuthClient(c.Request().Context(), payload.ToAuthorizeParams())
-	if err != nil {
+	if err := h.service.VerifyAuthorization(c.Request().Context(), payload.ToAuthorizeParams()); err != nil {
 		logger.Error("failed to validate authorization client", "error", err)
+		// TODO: tratar erros específicos de redirect_uri diferente
+		// se redirect_uri for inválido, não pode redirecionar com erro
 		return c.String(http.StatusBadRequest, "invalid client authorization")
 	}
 
@@ -61,7 +64,7 @@ func (h *OAuthHandler) Authorize(c echo.Context) error {
 
 		continueURLParams := models.ToContinueURLParams(payload)
 
-		continueURL := security.GenerateContinueURL(fmt.Sprintf("%s/authorize", h.url.AppBaseURL), continueURLParams)
+		continueURL := oauth.GenerateContinueURL(h.url.APIBaseURL, continueURLParams)
 		loginParams := url.Values{}
 		loginParams.Set("continue", continueURL)
 
@@ -70,7 +73,7 @@ func (h *OAuthHandler) Authorize(c echo.Context) error {
 		return c.Redirect(http.StatusFound, loginURL)
 	}
 
-	code, err := h.service.Authorize(c.Request().Context(), session.UserID, client, payload.ToAuthorizeParams())
+	code, err := h.service.Authorize(c.Request().Context(), session.UserID, payload.ToAuthorizeParams())
 	if err != nil {
 		logger.Error("authorize client", "error", err)
 		return c.String(http.StatusInternalServerError, "failed to authorize client")
@@ -78,7 +81,9 @@ func (h *OAuthHandler) Authorize(c echo.Context) error {
 
 	redirectParams := url.Values{}
 	redirectParams.Set("code", code)
-	redirectParams.Set("state", payload.State)
+	if payload.State != "" {
+		redirectParams.Set("state", payload.State)
+	}
 
 	redirectURI := fmt.Sprintf("%s?%s", payload.RedirectURI, redirectParams.Encode())
 
