@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/g-villarinho/oidc-server/internal/config"
 	"github.com/g-villarinho/oidc-server/internal/core/domain"
 	"github.com/g-villarinho/oidc-server/internal/core/ports"
 	"github.com/google/uuid"
@@ -12,27 +13,30 @@ import (
 type OAuthService interface {
 	VerifyAuthorization(ctx context.Context, params domain.AuthorizeParams) error
 	CreateAuthorizationCode(ctx context.Context, userID uuid.UUID, params domain.AuthorizeParams) (*domain.AuthorizationCode, error)
-	ExchangeToken(ctx context.Context, params domain.ExchangeTokenParams) error
+	ExchangeToken(ctx context.Context, params domain.ExchangeTokenParams) (*TokenResponse, error)
 }
 
 type OAuthServiceImpl struct {
 	clientRepository            ports.ClientRepository
 	authorizationCodeRepository ports.AuthorizationCodeRepository
-	TokenGenerator              ports.TokenGenerator
+	tokenService                TokenService
 	userRepository              ports.UserRepository
+	config                      *config.Config
 }
 
 func NewOAuthService(
 	clientRepository ports.ClientRepository,
 	authorizationCodeRepository ports.AuthorizationCodeRepository,
-	tokenGenerator ports.TokenGenerator,
+	tokenService TokenService,
 	userRepository ports.UserRepository,
+	config *config.Config,
 ) OAuthService {
 	return &OAuthServiceImpl{
 		clientRepository:            clientRepository,
 		authorizationCodeRepository: authorizationCodeRepository,
-		TokenGenerator:              tokenGenerator,
+		tokenService:                tokenService,
 		userRepository:              userRepository,
+		config:                      config,
 	}
 }
 
@@ -82,55 +86,76 @@ func (s *OAuthServiceImpl) CreateAuthorizationCode(ctx context.Context, userID u
 	return authorizationCode, nil
 }
 
-func (s *OAuthServiceImpl) ExchangeToken(ctx context.Context, params domain.ExchangeTokenParams) error {
+func (s *OAuthServiceImpl) ExchangeToken(ctx context.Context, params domain.ExchangeTokenParams) (*TokenResponse, error) {
 	switch params.GrantType {
 	case "authorization_code":
 		return s.exchangeAuthorizationCode(ctx, params)
-	case "refresh_token":
-		return s.exchangeRefreshToken(ctx, params)
+	// case "refresh_token":
+	// 	return s.exchangeRefreshToken(ctx, params)
 	default:
-		return domain.ErrUnsupportedResponseType
+		return nil, domain.ErrUnsupportedResponseType
 	}
 }
 
-func (s *OAuthServiceImpl) exchangeAuthorizationCode(ctx context.Context, params domain.ExchangeTokenParams) error {
+func (s *OAuthServiceImpl) exchangeAuthorizationCode(ctx context.Context, params domain.ExchangeTokenParams) (*TokenResponse, error) {
 	authorizationCode, err := s.authorizationCodeRepository.GetByCode(ctx, params.Code)
 	if err != nil {
 		if err == ports.ErrNotFound {
-			return domain.ErrInvalidAuthorizationCode
+			return nil, domain.ErrInvalidAuthorizationCode
 		}
 
-		return fmt.Errorf("get authorization code: %w", err)
+		return nil, fmt.Errorf("get authorization code: %w", err)
 	}
 
 	if authorizationCode.Used {
 		//TODO: Revoke all tokens issued with this code's grant
-		return domain.ErrAuthorizationCodeAlreadyUsed
+		return nil, domain.ErrAuthorizationCodeAlreadyUsed
 	}
 
 	if authorizationCode.IsExpired() {
-		return domain.ErrAuthorizationCodeExpired
+		return nil, domain.ErrAuthorizationCodeExpired
 	}
 
 	if authorizationCode.ClientID != params.ClientID {
-		return domain.ErrUnauthorizedClient
+		return nil, domain.ErrUnauthorizedClient
 	}
 
 	if authorizationCode.RedirectURI != params.RedirectURI {
-		return domain.ErrInvalidRedirectURI
+		return nil, domain.ErrInvalidRedirectURI
 	}
 
 	if !authorizationCode.IsValidPKCE(params.CodeVerifier) {
-		return domain.ErrInvalidPKCEVerification
+		return nil, domain.ErrInvalidPKCEVerification
 	}
 
 	if err := s.authorizationCodeRepository.MarkAsUsed(ctx, authorizationCode.Code); err != nil {
-		return fmt.Errorf("mark authorization code as used: %w", err)
+		return nil, fmt.Errorf("mark authorization code as used: %w", err)
 	}
 
-	return nil
+	tokenResponse, err := s.tokenService.CreateTokens(
+		ctx,
+		authorizationCode.UserID,
+		authorizationCode.ClientID,
+		authorizationCode.Scopes,
+		&authorizationCode.Code,
+		"",
+	)
+	if err != nil {
+		return nil, fmt.Errorf("create tokens: %w", err)
+	}
+
+	return tokenResponse, nil
 }
 
-func (s *OAuthServiceImpl) exchangeRefreshToken(ctx context.Context, params domain.ExchangeTokenParams) error {
-	return nil
-}
+// func (s *OAuthServiceImpl) exchangeRefreshToken(ctx context.Context, params domain.ExchangeTokenParams) (*TokenResponse, error) {
+// 	tokenResponse, err := s.tokenService.RefreshTokens(
+// 		ctx,
+// 		params.RefreshToken,
+// 		s.config.JWT.AccessTokenDuration,
+// 	)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("refresh tokens: %w", err)
+// 	}
+
+// 	return tokenResponse, nil
+// }

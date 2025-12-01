@@ -42,3 +42,14 @@ type AuthorizationCodeRepository interface {
 	Delete(ctx context.Context, code string) error
 	MarkAsUsed(ctx context.Context, code string) error
 }
+
+type TokenRepository interface {
+	Create(ctx context.Context, token *domain.Token) error
+	GetByAccessTokenHash(ctx context.Context, accessTokenHash string) (*domain.Token, error)
+	GetByRefreshTokenHash(ctx context.Context, refreshTokenHash string) (*domain.Token, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.Token, error)
+	Revoke(ctx context.Context, id uuid.UUID, reason string) error
+	RevokeByAccessTokenHash(ctx context.Context, accessTokenHash string, reason string) error
+	RevokeByAuthorizationCode(ctx context.Context, authorizationCode string, reason string) error
+	UpdateLastUsed(ctx context.Context, id uuid.UUID) error
+}

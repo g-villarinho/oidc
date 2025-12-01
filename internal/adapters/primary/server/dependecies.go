@@ -45,7 +45,7 @@ func provideRepositories(container *dig.Container) {
 	injector.Provide(container, postgresRepo.NewUserRepository)
 	injector.Provide(container, redisRepo.NewSessionRepository)
 	injector.Provide(container, postgresRepo.NewAuthorizationCodeRepository)
-
+	injector.Provide(container, postgresRepo.NewTokenRepository)
 }
 
 func provideCache(container *dig.Container) {
@@ -57,6 +57,7 @@ func provideServices(container *dig.Container) {
 	injector.Provide(container, services.NewClientService)
 	injector.Provide(container, services.NewUserService)
 	injector.Provide(container, services.NewCookieService)
+	injector.Provide(container, services.NewTokenService)
 	injector.Provide(container, services.NewOAuthService)
 }
 

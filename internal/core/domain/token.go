@@ -4,24 +4,23 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
+	"slices"
 	"time"
 
 	"github.com/google/uuid"
 )
 
 const (
-	AccessTokenExpiry  = 1 * time.Hour
-	RefreshTokenExpiry = 24 * time.Hour * 30 // 30 days
-	TokenTypeBearer    = "Bearer"
+	TokenTypeBearer = "Bearer"
 )
 
 var (
-	ErrTokenExpired    = errors.New("token expired")
-	ErrTokenRevoked    = errors.New("token revoked")
-	ErrTokenNotFound   = errors.New("token not found")
-	ErrInvalidToken    = errors.New("invalid token")
-	ErrRefreshExpired  = errors.New("refresh token expired")
-	ErrNoRefreshToken  = errors.New("no refresh token available")
+	ErrTokenExpired   = errors.New("token expired")
+	ErrTokenRevoked   = errors.New("token revoked")
+	ErrTokenNotFound  = errors.New("token not found")
+	ErrInvalidToken   = errors.New("invalid token")
+	ErrRefreshExpired = errors.New("refresh token expired")
+	ErrNoRefreshToken = errors.New("no refresh token available")
 )
 
 type Token struct {
@@ -42,18 +41,16 @@ type Token struct {
 	LastUsedAt            *time.Time
 }
 
-type NewTokenParams struct {
-	AccessToken           string
-	RefreshToken          string
-	AuthorizationCode     *string
-	ClientID              string
-	UserID                uuid.UUID
-	Scopes                []string
-	AccessTokenExpiresIn  time.Duration
-	RefreshTokenExpiresIn time.Duration
-}
-
-func NewToken(params NewTokenParams) (*Token, error) {
+func NewToken(
+	accessToken string,
+	refreshToken string,
+	authorizationCode *string,
+	clientID string,
+	userID uuid.UUID,
+	scopes []string,
+	accessTokenExpiresIn time.Duration,
+	refreshTokenExpiresIn time.Duration,
+) (*Token, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
 		return nil, err
@@ -61,27 +58,17 @@ func NewToken(params NewTokenParams) (*Token, error) {
 
 	now := time.Now().UTC()
 
-	accessTokenHash := hashToken(params.AccessToken)
-	refreshTokenHash := hashToken(params.RefreshToken)
-
-	accessTokenExpiresIn := params.AccessTokenExpiresIn
-	if accessTokenExpiresIn == 0 {
-		accessTokenExpiresIn = AccessTokenExpiry
-	}
-
-	refreshTokenExpiresIn := params.RefreshTokenExpiresIn
-	if refreshTokenExpiresIn == 0 {
-		refreshTokenExpiresIn = RefreshTokenExpiry
-	}
+	accessTokenHash := hashToken(accessToken)
+	refreshTokenHash := hashToken(refreshToken)
 
 	return &Token{
 		ID:                    id,
 		AccessTokenHash:       accessTokenHash,
 		RefreshTokenHash:      refreshTokenHash,
-		AuthorizationCode:     params.AuthorizationCode,
-		ClientID:              params.ClientID,
-		UserID:                params.UserID,
-		Scopes:                params.Scopes,
+		AuthorizationCode:     authorizationCode,
+		ClientID:              clientID,
+		UserID:                userID,
+		Scopes:                scopes,
 		TokenType:             TokenTypeBearer,
 		AccessTokenExpiresAt:  now.Add(accessTokenExpiresIn),
 		RefreshTokenExpiresAt: now.Add(refreshTokenExpiresIn),
@@ -128,12 +115,7 @@ func (t *Token) MarkAsUsed() {
 }
 
 func (t *Token) HasScope(scope string) bool {
-	for _, s := range t.Scopes {
-		if s == scope {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(t.Scopes, scope)
 }
 
 func (t *Token) HasAllScopes(scopes []string) bool {
