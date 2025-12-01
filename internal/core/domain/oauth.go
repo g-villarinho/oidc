@@ -11,6 +11,7 @@ var (
 	ErrInvalidAuthorizationCode     = errors.New("invalid authorization code")
 	ErrAuthorizationCodeAlreadyUsed = errors.New("authorization code already used")
 	ErrAuthorizationCodeExpired     = errors.New("authorization code expired")
+	ErrInvalidPKCEVerification      = errors.New("invalid PKCE verification")
 )
 
 type AuthorizeParams struct {

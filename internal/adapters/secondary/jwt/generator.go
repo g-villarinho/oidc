@@ -2,8 +2,15 @@ package jwt
 
 import (
 	"context"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/base64"
+	"fmt"
+	"slices"
+	"strings"
 	"time"
 
+	"github.com/g-villarinho/oidc-server/internal/config"
 	"github.com/g-villarinho/oidc-server/internal/core/domain"
 	"github.com/g-villarinho/oidc-server/internal/core/ports"
 	"github.com/golang-jwt/jwt/v5"
@@ -11,38 +18,73 @@ import (
 )
 
 type JWTTokenGenerator struct {
-	secretKey []byte
-	issuer    string
+	jwtConfig *config.JWT
 }
 
-func NewJWTTokenGenerator(secretKey string) ports.TokenGenerator {
+func NewJWTTokenGenerator(cfg *config.Config) ports.TokenGenerator {
 	return &JWTTokenGenerator{
-		secretKey: []byte("sua_secret_super_secreta_temporaria"),
-		issuer:    "oidc-server",
+		jwtConfig: &cfg.JWT,
 	}
 }
 
-func (j *JWTTokenGenerator) GenerateAccessToken(ctx context.Context, userID uuid.UUID, client *domain.Client, ttl time.Duration) (string, error) {
-	claims := jwt.MapClaims{
-		"sub": userID.String(),
-		"iss": j.issuer,
-		"exp": time.Now().Add(ttl).Unix(),
-		"iat": time.Now().Unix(),
-		"typ": "access_token",
-	}
+func (j *JWTTokenGenerator) GenerateAccessToken(ctx context.Context, userID uuid.UUID, clientID string, scopes []string) (string, error) {
+	secret := []byte(j.jwtConfig.Secret)
 
-	if client != nil {
-		claims["aud"] = client.ClientID
+	claims := jwt.MapClaims{
+		"iss":   j.jwtConfig.Issuer,
+		"sub":   userID.String(),
+		"aud":   clientID,
+		"exp":   time.Now().Add(j.jwtConfig.AccessTokenDuration).Unix(),
+		"iat":   time.Now().Unix(),
+		"scope": strings.Join(scopes, " "),
+		"jti":   uuid.New().String(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(j.secretKey)
+	return token.SignedString(secret)
 }
 
 func (j *JWTTokenGenerator) GenerateRefreshToken(ctx context.Context) (string, error) {
-	panic("unimplemented")
+	bytes := make([]byte, 32)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", fmt.Errorf("generate random bytes: %w", err)
+	}
+
+	entropy := fmt.Sprintf("%s:%s:%d",
+		bytes,
+		uuid.New().String(),
+		time.Now().UnixNano(),
+	)
+
+	hash := sha256.Sum256([]byte(entropy))
+
+	combined := append(bytes, hash[:]...)
+
+	token := base64.RawURLEncoding.EncodeToString(combined)
+
+	return token, nil
 }
 
-func (j *JWTTokenGenerator) GenerateIDToken(ctx context.Context, user *domain.User, client *domain.Client, nonce string, ttl time.Duration) (string, error) {
-	panic("unimplemented")
+func (j *JWTTokenGenerator) GenerateIDToken(ctx context.Context, user *domain.User, clientID, nonce string, scopes []string) (string, error) {
+	secret := []byte(j.jwtConfig.Secret)
+
+	claims := jwt.MapClaims{
+		"iss": j.jwtConfig.Issuer,
+		"sub": user.ID.String(),
+		"aud": clientID,
+		"exp": time.Now().Add(j.jwtConfig.IDTokenDuration).Unix(),
+		"iat": time.Now().Unix(),
+	}
+
+	if nonce != "" {
+		claims["nonce"] = nonce
+	}
+
+	if slices.Contains(scopes, "email") {
+		claims["email"] = user.Email
+		claims["email_verified"] = user.EmailVerified
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(secret)
 }

@@ -37,14 +37,20 @@ type OauthClient struct {
 
 type Token struct {
 	ID                    pgtype.UUID      `json:"id"`
-	AccessToken           string           `json:"access_token"`
-	RefreshToken          pgtype.Text      `json:"refresh_token"`
-	ClientID              pgtype.UUID      `json:"client_id"`
+	AccessTokenHash       string           `json:"access_token_hash"`
+	RefreshTokenHash      string           `json:"refresh_token_hash"`
+	AuthorizationCode     pgtype.Text      `json:"authorization_code"`
+	ClientID              string           `json:"client_id"`
 	UserID                pgtype.UUID      `json:"user_id"`
-	Scope                 string           `json:"scope"`
+	Scopes                []string         `json:"scopes"`
+	TokenType             string           `json:"token_type"`
 	AccessTokenExpiresAt  pgtype.Timestamp `json:"access_token_expires_at"`
 	RefreshTokenExpiresAt pgtype.Timestamp `json:"refresh_token_expires_at"`
+	Revoked               bool             `json:"revoked"`
+	RevokedAt             pgtype.Timestamp `json:"revoked_at"`
+	RevokedReason         pgtype.Text      `json:"revoked_reason"`
 	CreatedAt             pgtype.Timestamp `json:"created_at"`
+	LastUsedAt            pgtype.Timestamp `json:"last_used_at"`
 }
 
 type User struct {

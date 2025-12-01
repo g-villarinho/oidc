@@ -5,6 +5,7 @@ import (
 	"github.com/g-villarinho/oidc-server/internal/adapters/primary/server/handlers"
 	"github.com/g-villarinho/oidc-server/internal/adapters/primary/server/middlewares"
 	"github.com/g-villarinho/oidc-server/internal/adapters/secondary/argon2"
+	"github.com/g-villarinho/oidc-server/internal/adapters/secondary/jwt"
 	"github.com/g-villarinho/oidc-server/internal/adapters/secondary/postgres"
 	postgresRepo "github.com/g-villarinho/oidc-server/internal/adapters/secondary/postgres/repositories"
 	"github.com/g-villarinho/oidc-server/internal/adapters/secondary/redis"
@@ -69,6 +70,7 @@ func provideHandlers(container *dig.Container) {
 
 func provideCrypto(container *dig.Container) {
 	injector.Provide(container, argon2.NewHasher)
+	injector.Provide(container, jwt.NewJWTTokenGenerator)
 }
 
 func provideServer(container *dig.Container) {

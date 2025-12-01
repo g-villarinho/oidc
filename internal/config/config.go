@@ -18,6 +18,7 @@ type Config struct {
 	Session   Session   `mapstructure:"session"`
 	Server    Server    `mapstructure:"server"`
 	URL       URL       `mapstructure:"url"`
+	JWT       JWT       `mapstructure:"jwt"`
 }
 
 type Server struct {
@@ -81,6 +82,14 @@ type CookieOptions struct {
 type URL struct {
 	APIBaseURL string `mapstructure:"apibaseurl"`
 	AppBaseURL string `mapstructure:"appbaseurl"`
+}
+
+type JWT struct {
+	Secret               string        `mapstructure:"secret"`
+	Issuer               string        `mapstructure:"issuer"`
+	AccessTokenDuration  time.Duration `mapstructure:"AccessTokenDuration"`
+	RefreshTokenDuration time.Duration `mapstructure:"RefreshTokenDuration"`
+	IDTokenDuration      time.Duration `mapstructure:"IDTokenDuration"`
 }
 
 func (e *Config) IsDevelopment() bool {

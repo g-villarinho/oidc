@@ -11,20 +11,37 @@ import (
 )
 
 type Querier interface {
+	CountActiveTokensByClient(ctx context.Context, clientID string) (int64, error)
+	CountActiveTokensByUser(ctx context.Context, userID pgtype.UUID) (int64, error)
 	CreateAuthorizationCode(ctx context.Context, arg CreateAuthorizationCodeParams) (AuthorizationCode, error)
 	CreateClient(ctx context.Context, arg CreateClientParams) (OauthClient, error)
+	CreateToken(ctx context.Context, arg CreateTokenParams) (Token, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteAuthorizationCode(ctx context.Context, code string) error
 	DeleteClient(ctx context.Context, id pgtype.UUID) error
 	DeleteExpiredAuthorizationCodes(ctx context.Context) error
+	DeleteExpiredTokens(ctx context.Context) error
+	GetActiveTokensByClient(ctx context.Context, clientID string) ([]Token, error)
+	GetActiveTokensByUser(ctx context.Context, userID pgtype.UUID) ([]Token, error)
 	GetAuthorizationCode(ctx context.Context, code string) (GetAuthorizationCodeRow, error)
 	GetByEmail(ctx context.Context, email string) (User, error)
 	GetByID(ctx context.Context, id pgtype.UUID) (User, error)
 	GetClientByClientID(ctx context.Context, clientID string) (OauthClient, error)
 	GetClientByID(ctx context.Context, id pgtype.UUID) (OauthClient, error)
+	GetTokenByAccessTokenHash(ctx context.Context, accessTokenHash string) (Token, error)
+	GetTokenByID(ctx context.Context, id pgtype.UUID) (Token, error)
+	GetTokenByRefreshTokenHash(ctx context.Context, refreshTokenHash string) (Token, error)
+	GetTokenWithDetails(ctx context.Context, id pgtype.UUID) (GetTokenWithDetailsRow, error)
 	ListClients(ctx context.Context) ([]OauthClient, error)
 	MarkAuthorizationCodeAsUsed(ctx context.Context, code string) error
+	RevokeToken(ctx context.Context, arg RevokeTokenParams) error
+	RevokeTokenByAccessTokenHash(ctx context.Context, arg RevokeTokenByAccessTokenHashParams) error
+	RevokeTokensByAuthorizationCode(ctx context.Context, arg RevokeTokensByAuthorizationCodeParams) error
+	RevokeTokensByClient(ctx context.Context, arg RevokeTokensByClientParams) error
+	RevokeTokensByUser(ctx context.Context, arg RevokeTokensByUserParams) error
 	UpdateClient(ctx context.Context, arg UpdateClientParams) (OauthClient, error)
+	UpdateLastUsedAt(ctx context.Context, id pgtype.UUID) error
+	UpdateLastUsedAtByAccessTokenHash(ctx context.Context, accessTokenHash string) error
 	UpdatePassword(ctx context.Context, arg UpdatePasswordParams) (User, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	VerifyEmail(ctx context.Context, id pgtype.UUID) (User, error)

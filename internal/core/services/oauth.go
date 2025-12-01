@@ -18,12 +18,21 @@ type OAuthService interface {
 type OAuthServiceImpl struct {
 	clientRepository            ports.ClientRepository
 	authorizationCodeRepository ports.AuthorizationCodeRepository
+	TokenGenerator              ports.TokenGenerator
+	userRepository              ports.UserRepository
 }
 
-func NewOAuthService(clientRepository ports.ClientRepository, authorizationCodeRepository ports.AuthorizationCodeRepository) OAuthService {
+func NewOAuthService(
+	clientRepository ports.ClientRepository,
+	authorizationCodeRepository ports.AuthorizationCodeRepository,
+	tokenGenerator ports.TokenGenerator,
+	userRepository ports.UserRepository,
+) OAuthService {
 	return &OAuthServiceImpl{
 		clientRepository:            clientRepository,
 		authorizationCodeRepository: authorizationCodeRepository,
+		TokenGenerator:              tokenGenerator,
+		userRepository:              userRepository,
 	}
 }
 
@@ -74,6 +83,17 @@ func (s *OAuthServiceImpl) CreateAuthorizationCode(ctx context.Context, userID u
 }
 
 func (s *OAuthServiceImpl) ExchangeToken(ctx context.Context, params domain.ExchangeTokenParams) error {
+	switch params.GrantType {
+	case "authorization_code":
+		return s.exchangeAuthorizationCode(ctx, params)
+	case "refresh_token":
+		return s.exchangeRefreshToken(ctx, params)
+	default:
+		return domain.ErrUnsupportedResponseType
+	}
+}
+
+func (s *OAuthServiceImpl) exchangeAuthorizationCode(ctx context.Context, params domain.ExchangeTokenParams) error {
 	authorizationCode, err := s.authorizationCodeRepository.GetByCode(ctx, params.Code)
 	if err != nil {
 		if err == ports.ErrNotFound {
@@ -92,11 +112,25 @@ func (s *OAuthServiceImpl) ExchangeToken(ctx context.Context, params domain.Exch
 		return domain.ErrAuthorizationCodeExpired
 	}
 
-	// Validation of client pkce, client_id redirect_uri should be done here
+	if authorizationCode.ClientID != params.ClientID {
+		return domain.ErrUnauthorizedClient
+	}
+
+	if authorizationCode.RedirectURI != params.RedirectURI {
+		return domain.ErrInvalidRedirectURI
+	}
+
+	if !authorizationCode.IsValidPKCE(params.CodeVerifier) {
+		return domain.ErrInvalidPKCEVerification
+	}
 
 	if err := s.authorizationCodeRepository.MarkAsUsed(ctx, authorizationCode.Code); err != nil {
 		return fmt.Errorf("mark authorization code as used: %w", err)
 	}
 
+	return nil
+}
+
+func (s *OAuthServiceImpl) exchangeRefreshToken(ctx context.Context, params domain.ExchangeTokenParams) error {
 	return nil
 }

@@ -69,3 +69,19 @@ func generateCode() (string, error) {
 func (ac *AuthorizationCode) IsExpired() bool {
 	return time.Now().After(ac.ExpiresAt)
 }
+
+func (ac *AuthorizationCode) IsValidPKCE(verifier string) bool {
+	var computedChallenge string
+
+	switch ac.CodeChallengeMethod {
+	case "S256":
+		hash := sha256.Sum256([]byte(verifier))
+		computedChallenge = base64.RawURLEncoding.EncodeToString(hash[:])
+	case "plain":
+		computedChallenge = verifier
+	default:
+		return false
+	}
+
+	return computedChallenge == ac.CodeChallenge
+}
