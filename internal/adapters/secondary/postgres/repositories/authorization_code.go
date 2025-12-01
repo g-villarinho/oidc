@@ -32,6 +32,11 @@ func (r *AuthorizationCodeRepository) Create(ctx context.Context, code *domain.A
 		Valid: true,
 	}
 
+	nonce := pgtype.Text{
+		String: code.Nonce,
+		Valid:  code.Nonce != "",
+	}
+
 	codeChallenge := pgtype.Text{
 		String: code.CodeChallenge,
 		Valid:  true,
@@ -53,6 +58,7 @@ func (r *AuthorizationCodeRepository) Create(ctx context.Context, code *domain.A
 		UserID:              userID,
 		RedirectUri:         code.RedirectURI,
 		Scopes:              scopes,
+		Nonce:               nonce,
 		CodeChallenge:       codeChallenge,
 		CodeChallengeMethod: codeChallengeMethod,
 		ExpiresAt:           expiresAt,
@@ -77,6 +83,7 @@ func (a *AuthorizationCodeRepository) GetByCode(ctx context.Context, code string
 		UserID:              ac.UserID.Bytes,
 		RedirectURI:         ac.RedirectUri,
 		Scopes:              ac.Scopes,
+		Nonce:               ac.Nonce.String,
 		CodeChallenge:       ac.CodeChallenge.String,
 		CodeChallengeMethod: ac.CodeChallengeMethod.String,
 		Used:                ac.Used,

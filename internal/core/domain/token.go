@@ -77,6 +77,14 @@ func NewToken(
 	}, nil
 }
 
+type CreateTokenParams struct {
+	UserID            uuid.UUID
+	ClientID          string
+	Scopes            []string
+	AuthorizationCode *string
+	Nonce             string
+}
+
 func hashToken(token string) string {
 	hash := sha256.Sum256([]byte(token))
 	return hex.EncodeToString(hash[:])

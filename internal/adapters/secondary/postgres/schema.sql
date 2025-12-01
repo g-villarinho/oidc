@@ -31,6 +31,7 @@ CREATE TABLE authorization_codes (
     user_id UUID NOT NULL REFERENCES users(id),
     redirect_uri TEXT NOT NULL,
     scopes TEXT[] NOT NULL,
+    nonce VARCHAR(255),
     code_challenge VARCHAR(255),
     code_challenge_method VARCHAR(10),
     used BOOLEAN NOT NULL DEFAULT FALSE,

@@ -71,6 +71,7 @@ func (s *OAuthServiceImpl) CreateAuthorizationCode(ctx context.Context, userID u
 		userID,
 		params.RedirectURI,
 		params.Scopes,
+		params.Nonce,
 		params.CodeChallenge,
 		params.CodeChallengeMethod,
 	)
@@ -132,14 +133,7 @@ func (s *OAuthServiceImpl) exchangeAuthorizationCode(ctx context.Context, params
 		return nil, fmt.Errorf("mark authorization code as used: %w", err)
 	}
 
-	tokenResponse, err := s.tokenService.CreateTokens(
-		ctx,
-		authorizationCode.UserID,
-		authorizationCode.ClientID,
-		authorizationCode.Scopes,
-		&authorizationCode.Code,
-		"",
-	)
+	tokenResponse, err := s.tokenService.CreateTokens(ctx, authorizationCode.ToCreateTokenParams())
 	if err != nil {
 		return nil, fmt.Errorf("create tokens: %w", err)
 	}

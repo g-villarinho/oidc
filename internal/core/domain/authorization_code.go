@@ -20,6 +20,7 @@ type AuthorizationCode struct {
 	UserID              uuid.UUID
 	RedirectURI         string
 	Scopes              []string
+	Nonce               string
 	CodeChallenge       string
 	CodeChallengeMethod string
 	Used                bool
@@ -27,7 +28,7 @@ type AuthorizationCode struct {
 	CreatedAt           time.Time
 }
 
-func NewAuthorizationCode(clientID string, userID uuid.UUID, redirectURI string, scopes []string, codeChallenge, codeChallengeMethod string) (*AuthorizationCode, error) {
+func NewAuthorizationCode(clientID string, userID uuid.UUID, redirectURI string, scopes []string, nonce, codeChallenge, codeChallengeMethod string) (*AuthorizationCode, error) {
 	code, err := generateCode()
 	if err != nil {
 		return nil, err
@@ -39,6 +40,7 @@ func NewAuthorizationCode(clientID string, userID uuid.UUID, redirectURI string,
 		UserID:              userID,
 		RedirectURI:         redirectURI,
 		Scopes:              scopes,
+		Nonce:               nonce,
 		CodeChallenge:       codeChallenge,
 		CodeChallengeMethod: codeChallengeMethod,
 		ExpiresAt:           time.Now().Add(AuthorizationCodeExpiry),
@@ -84,4 +86,14 @@ func (ac *AuthorizationCode) IsValidPKCE(verifier string) bool {
 	}
 
 	return computedChallenge == ac.CodeChallenge
+}
+
+func (ac *AuthorizationCode) ToCreateTokenParams() CreateTokenParams {
+	return CreateTokenParams{
+		AuthorizationCode: &ac.Code,
+		ClientID:          ac.ClientID,
+		UserID:            ac.UserID,
+		Scopes:            ac.Scopes,
+		Nonce:             ac.Nonce,
+	}
 }

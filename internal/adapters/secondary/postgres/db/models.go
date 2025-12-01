@@ -14,6 +14,7 @@ type AuthorizationCode struct {
 	UserID              pgtype.UUID      `json:"user_id"`
 	RedirectUri         string           `json:"redirect_uri"`
 	Scopes              []string         `json:"scopes"`
+	Nonce               pgtype.Text      `json:"nonce"`
 	CodeChallenge       pgtype.Text      `json:"code_challenge"`
 	CodeChallengeMethod pgtype.Text      `json:"code_challenge_method"`
 	Used                bool             `json:"used"`
